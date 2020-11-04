@@ -22,7 +22,7 @@ public class UserServices {
 	public double getCurrentBalance(AuthenticatedUser currentUser)
 	{
 		//TODO connect to db
-		HttpEntity entity = makeAuthEntity();
+		HttpEntity<User> entity = makeAuthEntity();
 		double balance = restTemplate.postForObject(BASE_URL + "balance", entity, Double.class);
 		return balance;
 	}
@@ -52,11 +52,11 @@ public class UserServices {
 		return restTemplate.getForObject(BASE_URL+ "users", User[].class);
 	}
 	
-	private HttpEntity makeAuthEntity()
+	private HttpEntity<User> makeAuthEntity()
 	{
 		HttpHeaders headers = new HttpHeaders();		
 		headers.setBearerAuth(AUTH_TOKEN);
-		HttpEntity entity = new HttpEntity<>(headers);
+		HttpEntity<User> entity = new HttpEntity<User>(headers);
 		return entity;
 	}
 }
