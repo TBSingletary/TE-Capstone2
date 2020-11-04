@@ -3,11 +3,15 @@ package com.techelevator.tenmo.services;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.techelevator.tenmo.models.AuthenticatedUser;
+import com.techelevator.tenmo.models.User;
 
 
-
+@RestController
+//@PreAuthorize("isAuthenticated()")
 public class UserServices {
 
 	public static String AUTH_TOKEN = "";
@@ -15,15 +19,17 @@ public class UserServices {
 	private RestTemplate restTemplate = new RestTemplate();
 	
 	
-	public double getCurrentBalance()
+	public double getCurrentBalance(AuthenticatedUser currentUser)
 	{
-		double balance = 0.0;
+		//TODO connect to db
+		HttpEntity entity = makeAuthEntity();
+		double balance = restTemplate.postForObject(BASE_URL + "balance", entity, Double.class);
 		return balance;
 	}
 	
 	public void getTransferHistory()
 	{
-		//TODO View and accepted transfers
+		//TODO View any accepted transfers
 	}
 	
 	public void getCurrentRequests()
@@ -39,6 +45,11 @@ public class UserServices {
 	public void requestMoney()
 	{
 		//TODO Shake down an existing user
+	}
+	
+	public User[] getUserList()
+	{		
+		return restTemplate.getForObject(BASE_URL+ "users", User[].class);
 	}
 	
 	private HttpEntity makeAuthEntity()
