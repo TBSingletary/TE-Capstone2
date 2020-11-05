@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.techelevator.tenmo.models.AuthenticatedUser;
-import com.techelevator.tenmo.models.User;
+import com.techelevator.tenmo.models.UserClient;
 
 
 @RestController
@@ -18,12 +18,17 @@ public class UserServices {
 	private String BASE_URL;
 	private RestTemplate restTemplate = new RestTemplate();
 	
+	public UserServices (String url)
+	{
+		this.BASE_URL = url;
+	}
+	
 	
 	public double getCurrentBalance(AuthenticatedUser currentUser)
 	{
 		//TODO connect to db
-		HttpEntity<User> entity = makeAuthEntity();
-		double balance = restTemplate.postForObject(BASE_URL + "balance", entity, Double.class);
+		HttpEntity<UserClient> entity = makeAuthEntity(currentUser);
+		double balance = restTemplate.postForObject(BASE_URL + "accounts/balance", entity, Double.class);
 		return balance;
 	}
 	
@@ -47,16 +52,16 @@ public class UserServices {
 		//TODO Shake down an existing user
 	}
 	
-	public User[] getUserList()
+	public UserClient[] getUserList()
 	{		
-		return restTemplate.getForObject(BASE_URL+ "users", User[].class);
+		return restTemplate.getForObject(BASE_URL+ "users", UserClient[].class);
 	}
 	
-	private HttpEntity<User> makeAuthEntity()
+	private HttpEntity<UserClient> makeAuthEntity(AuthenticatedUser currentUser)
 	{
 		HttpHeaders headers = new HttpHeaders();		
 		headers.setBearerAuth(AUTH_TOKEN);
-		HttpEntity<User> entity = new HttpEntity<User>(headers);
+		HttpEntity<UserClient> entity = new HttpEntity<UserClient>(headers);
 		return entity;
 	}
 }

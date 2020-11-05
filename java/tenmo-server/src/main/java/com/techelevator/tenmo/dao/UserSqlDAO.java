@@ -77,7 +77,8 @@ public class UserSqlDAO implements UserDAO {
         accountCreated = jdbcTemplate.update(insertAccount,newUserId,STARTING_BALANCE) == 1;
 
         return userCreated && accountCreated;
-    }
+    }    
+   
 
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
