@@ -21,17 +21,19 @@ public class TransferSqlDAO implements TransferDAO {
 	@Override
 	public void createTransfer(Transfer transfer) {
 		String accountLog = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
-				+ "VALUES (3, 3, ?, ?, ?)";
+				+ "VALUES (3, 3, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?)";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(accountLog, transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()); 
 	}
 	
 	@Override
 	public void transferFunds(Transfer transfer)
 	{
-		String subtract = "UPDATE accounts SET balance = (balance - ?) WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
+		String subtract = "UPDATE accounts SET balance = (balance - ?) "
+				+ "WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
 		SqlRowSet subtractResult = jdbcTemplate.queryForRowSet(subtract, transfer.getAmount(), transfer.getAccountFrom());
 		
-		String add = "UPDATE accounts SET balance = (balance + ?) WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
+		String add = "UPDATE accounts SET balance = (balance + ?) "
+				+ "WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
 		SqlRowSet addResult = jdbcTemplate.queryForRowSet(subtract, transfer.getAmount(), transfer.getAccountTo());
 	}
 
@@ -56,9 +58,11 @@ public class TransferSqlDAO implements TransferDAO {
 		return result.toString();
 	}
 
+	//TODO WORK IN PROGRESS
 	@Override
-	public void updateTransferRequest(Transfer transfer) {
-		// TODO Auto-generated method stub
+	public void updateTransferRequest(Transfer transfer, int id) {
+		String sql = "UPDATE transfers SET transfer_status_id = ? WHERE transfer_id = ?";
+		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, transfer.getTransferStatusId());
 		
 	}
 

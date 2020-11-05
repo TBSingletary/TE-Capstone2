@@ -12,7 +12,8 @@ public interface TransferDAO {
 	
 	public String getTransferDetails(int id);
 	
-	public void updateTransferRequest(Transfer transfer);
+	//TODO WORK IN PROGRESS
+	public void updateTransferRequest(Transfer transfer, int id);
 	
 	public String getTransferStatus(Transfer transfer);
 
