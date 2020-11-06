@@ -48,10 +48,10 @@ public class TransferController {
 		transferDAO.updateTransferRequest(transfer, id);
 	}
 
-	@RequestMapping(value = "transfers/transfer_status_desc/{id}", method = RequestMethod.GET)
-	public void getTransferStatus(@RequestBody Transfer transfer, @PathVariable int id)
+	@RequestMapping(path = "transfers/transfer_status_desc/{id}", method = RequestMethod.GET)
+	public String getTransferStatus(@RequestBody Transfer transfer, @PathVariable int id)
 	{
-		transferDAO.getTransferStatus(transfer, id);
+		return transferDAO.getTransferStatus(transfer, id);
 	}
 
 	@RequestMapping(value = "transfers", method = RequestMethod.GET)

@@ -1,5 +1,7 @@
 package com.techelevator.tenmo.controller;
 
+import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,10 +29,10 @@ public class UserController {
 		return userDAO.findAll();
 	}
 
-	@RequestMapping(path = "accounts/balance", method = RequestMethod.POST)
-	public double getUserBalance(@RequestBody User user)
+	@RequestMapping(path = "accounts/balance", method = RequestMethod.GET)
+	public BigDecimal getUserBalance(Principal principal)
 	{
-		return userDAO.getUserBalance(user.getUsername());
+		return userDAO.getUserBalance(principal.getName());
 	}
 
 }

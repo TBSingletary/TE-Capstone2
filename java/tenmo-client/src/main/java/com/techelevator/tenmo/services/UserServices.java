@@ -1,8 +1,12 @@
 package com.techelevator.tenmo.services;
 
+import java.math.BigDecimal;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,15 +28,16 @@ public class UserServices {
 	}
 	
 	
-	public double getCurrentBalance(AuthenticatedUser currentUser)
+	public BigDecimal getCurrentBalance(AuthenticatedUser currentUser)
 	{
-		double balance = restTemplate.postForObject(BASE_URL + "balance", this.makeAuthEntity(), Double.class);
-		return balance;
+		ResponseEntity<BigDecimal> balance = restTemplate.exchange(BASE_URL + "accounts/balance", HttpMethod.GET, this.makeAuthEntity(currentUser), BigDecimal.class);
+		return balance.getBody();
 	}
 	
 	public void getTransferHistory()
 	{
 		//TODO View any accepted transfers
+		
 	}
 	
 	public void getCurrentRequests()
@@ -55,10 +60,11 @@ public class UserServices {
 		return restTemplate.getForObject(BASE_URL+ "users", UserClient[].class);
 	}
 	
-	private HttpEntity makeAuthEntity()
+	private HttpEntity makeAuthEntity(AuthenticatedUser currentUser)
 	{
-		HttpHeaders headers = new HttpHeaders();		
-		headers.setBearerAuth(AUTH_TOKEN);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(currentUser.getToken());
 		HttpEntity entity = new HttpEntity(headers);
 		return entity;
 	}
