@@ -8,7 +8,7 @@ public interface TransferDAO {
 	
 	public void transferFunds(Transfer transfer);
 	
-	public double getBalance(String username);
+	public double getUserBalance(String username);
 	
 	public String getTransferDetails(int id);
 	
@@ -17,7 +17,7 @@ public interface TransferDAO {
 	
 	public String getTransferStatus(Transfer transfer);
 
-	public List<Transfer> getTransferHistory(Transfer transfer);
+	public List<Transfer> getAllTransfers(Transfer transfer);
 
 	public void createTransfer(Transfer transfer);
 }

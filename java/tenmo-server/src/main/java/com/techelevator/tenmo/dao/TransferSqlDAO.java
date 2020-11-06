@@ -38,7 +38,7 @@ public class TransferSqlDAO implements TransferDAO {
 	}
 
 	@Override
-	public double getBalance(String username)
+	public double getUserBalance(String username)
 	{
 		double balance = 0;
 		String sql = "SELECT balance FROM accounts JOIN users on users.user_id = accounts.user_id WHERE users.username = ?";
@@ -57,12 +57,11 @@ public class TransferSqlDAO implements TransferDAO {
 		
 		return result.toString();
 	}
-
-	//TODO WORK IN PROGRESS
+	
 	@Override
 	public void updateTransferRequest(Transfer transfer, int id) {
 		String sql = "UPDATE transfers SET transfer_status_id = ? WHERE transfer_id = ?";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, transfer.getTransferStatusId());
+		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, transfer.getTransferStatusId(), id);
 		
 	}
 
@@ -74,8 +73,27 @@ public class TransferSqlDAO implements TransferDAO {
 	}
 
 	@Override
-	public List<Transfer> getTransferHistory(Transfer transfer) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Transfer> getAllTransfers(Transfer transfer) {
+		List<Transfer> transfers = null;
+		String sql = "SELECT * FROM tranfers";
+				//+ "AND (account_to = (SELECT user_id FROM user WHERE username = ?) OR account_from = (SELECT user_id FROM user WHERE username = ?))";
+		SqlRowSet result = jdbcTemplate.queryForRowSet(sql);
+		if(result.next())
+		{
+			transfers.add(mapRowToTransfer(result));
+		}
+		return transfers;
+	}
+	
+	private Transfer mapRowToTransfer(SqlRowSet rs)
+	{
+		Transfer transfer = new Transfer();
+		transfer.setTransferId(rs.getLong("transfer_id"));
+		transfer.setTransferTypeId(rs.getLong("transfer_type_id"));
+		transfer.setTransferStatusId(rs.getLong("transfer_status_id"));
+		transfer.setAccountFrom(rs.getLong("account_from"));
+		transfer.setAccountTo(rs.getLong("account_to"));
+		transfer.setAmount(rs.getDouble("amount"));
+		return transfer;
 	}
 }
