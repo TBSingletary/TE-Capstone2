@@ -8,14 +8,11 @@ public interface TransferDAO {
 	
 	public void transferFunds(Transfer transfer);
 	
-	public double getUserBalance(String username);
-	
 	public String getTransferDetails(int id);
 	
-	//TODO WORK IN PROGRESS
 	public void updateTransferRequest(Transfer transfer, int id);
 	
-	public String getTransferStatus(Transfer transfer);
+	public String getTransferStatus(Transfer transfer, int id);
 
 	public List<Transfer> getAllTransfers(Transfer transfer);
 
