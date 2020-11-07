@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.techelevator.tenmo.models.AuthenticatedUser;
+import com.techelevator.tenmo.models.TransferClient;
 import com.techelevator.tenmo.models.UserClient;
 
 
@@ -34,10 +35,10 @@ public class UserServices {
 		return balance.getBody();
 	}
 	
-	public void getTransferHistory()
+	public TransferClient[] getTransferHistory(AuthenticatedUser currentUser)
 	{
-		//TODO View any accepted transfers
-		
+		ResponseEntity<TransferClient[]> transferList = restTemplate.exchange(BASE_URL + "transfers", HttpMethod.GET, this.makeAuthEntity(currentUser), TransferClient[].class);
+		return transferList.getBody();
 	}
 	
 	public void getCurrentRequests()

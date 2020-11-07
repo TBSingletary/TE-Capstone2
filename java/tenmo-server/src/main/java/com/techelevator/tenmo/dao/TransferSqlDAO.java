@@ -62,8 +62,7 @@ public class TransferSqlDAO implements TransferDAO {
 	@Override
 	public List<Transfer> getAllTransfers(Transfer transfer) {
 		List<Transfer> transfers = null;
-		String sql = "SELECT * FROM transfers";
-		//+ "AND (account_to = (SELECT user_id FROM user WHERE username = ?) OR account_from = (SELECT user_id FROM user WHERE username = ?))";
+		String sql = "SELECT * FROM transfers WHERE account_from = ? OR account_to = ?";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(sql);
 		if(result.next())
 		{
@@ -71,6 +70,7 @@ public class TransferSqlDAO implements TransferDAO {
 		}
 		return transfers;
 	}
+
 
 	private Transfer mapRowToTransfer(SqlRowSet rs)
 	{

@@ -3,6 +3,7 @@ package com.techelevator.tenmo;
 import java.math.BigDecimal;
 
 import com.techelevator.tenmo.models.AuthenticatedUser;
+import com.techelevator.tenmo.models.TransferClient;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
@@ -43,9 +44,14 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	public void run() {
-		System.out.println("*********************");
-		System.out.println("* Welcome to TEnmo! *");
-		System.out.println("*********************");
+		System.out.println(" ____ ____ ____ ____ ____");
+		System.out.println("||T |||E |||n |||m |||o ||");
+		System.out.println("||__|||__|||__|||__|||__||");
+		System.out.println("|/__\\|/__\\|/__\\|/__\\|/__\\|");
+		System.out.println();
+		System.out.println("***************************");
+		System.out.println(" *   Welcome to TEnmo!   * ");
+		System.out.println("***************************");
 		
 		registerAndLogin();
 		mainMenu();
@@ -81,7 +87,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
+		TransferClient[] transferList = userServices.getTransferHistory(currentUser);
 		
 	}
 
@@ -101,6 +107,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 	
 	private void exitProgram() {
+		System.out.println("Thanks for choosing TEnmo!");
 		System.exit(0);
 	}
 
