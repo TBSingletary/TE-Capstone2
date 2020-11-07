@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 
 @Service
 public class TransferSqlDAO implements TransferDAO {
@@ -41,7 +42,7 @@ public class TransferSqlDAO implements TransferDAO {
 	public String getTransferDetails(int id) {
 		String sql = "SELECT * FROM transfers WHERE transfer_id = ?";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id);
-
+		
 		return result.toString();
 	}
 
@@ -56,15 +57,15 @@ public class TransferSqlDAO implements TransferDAO {
 	public String getTransferStatus(Transfer transfer, int id) {
 		String sql = "SELECT transfer_status_desc FROM transfer_statuses WHERE transfer_status_id = ?";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id);
-		return result.toString();
+		return result.getNString("transfer_status_desc");
 	}
 
 	@Override
-	public List<Transfer> getAllTransfers(Transfer transfer) {
+	public List<Transfer> getAllTransfers(User user) {
 		List<Transfer> transfers = null;
 		String sql = "SELECT * FROM transfers WHERE account_from = ? OR account_to = ?";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(sql);
-		if(result.next())
+		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, user.getId(), user.getId());
+		while(result.next())
 		{
 			transfers.add(mapRowToTransfer(result));
 		}

@@ -54,10 +54,10 @@ public class TransferController {
 		return transferDAO.getTransferStatus(transfer, id);
 	}
 
-	@RequestMapping(value = "transfers", method = RequestMethod.GET)
-	public List<Transfer> getAllTransfers(Transfer transfer)
+	@RequestMapping(path = "transfers/{username}", method = RequestMethod.POST)
+	public List<Transfer> getAllTransfers(@RequestBody User user)
 	{
-		return transferDAO.getAllTransfers(transfer);
+		return transferDAO.getAllTransfers(user);
 	}
 
 
