@@ -39,11 +39,12 @@ public class TransferSqlDAO implements TransferDAO {
 	}
 
 	@Override
-	public String getTransferDetails(int id) {
+	public Transfer getTransferDetails(int id) {
+		Transfer transfer = new Transfer();
 		String sql = "SELECT * FROM transfers WHERE transfer_id = ?";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id);
-		
-		return result.toString();
+		transfer = mapRowToTransfer(result);
+		return transfer;
 	}
 
 	@Override
@@ -61,10 +62,10 @@ public class TransferSqlDAO implements TransferDAO {
 	}
 
 	@Override
-	public List<Transfer> getAllTransfers(User user) {
+	public List<Transfer> getAllTransfers(int id) {
 		List<Transfer> transfers = null;
 		String sql = "SELECT * FROM transfers WHERE account_from = ? OR account_to = ?";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, user.getId(), user.getId());
+		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id, id);
 		while(result.next())
 		{
 			transfers.add(mapRowToTransfer(result));

@@ -1,6 +1,8 @@
 package com.techelevator.tenmo;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.TransferClient;
@@ -40,7 +42,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		this.console = console;
 		this.authenticationService = authenticationService;
 		this.userServices = userServices;
-		//this.transferServices = transferServices;
 	}
 
 	public void run() {
@@ -87,7 +88,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewTransferHistory() {
-		TransferClient[] transferList = userServices.getTransferHistory(currentUser);
+		
+		System.out.println(userServices.getTransferHistory(currentUser));
+
+		
 		
 	}
 

@@ -35,25 +35,26 @@ public class UserServices {
 		return balance.getBody();
 	}
 	
-	public TransferClient[] getTransferHistory(AuthenticatedUser currentUser)
-	{
-		ResponseEntity<TransferClient[]> transferList = restTemplate.exchange(BASE_URL + "transfers", HttpMethod.GET, this.makeAuthEntity(currentUser), TransferClient[].class);
-		return transferList.getBody();
-	}
+//	public void getCurrentRequests()
+//	{
+//		//TODO Have the DAO call for any transfers with pending status
+//	}
 	
-	public void getCurrentRequests()
+	public void sendMoney(AuthenticatedUser currentUser)
 	{
-		//TODO Have the DAO call for any transfers with pending status
-	}
-	
-	public void sendMoney()
-	{
+		restTemplate.exchange(BASE_URL + "transfers", HttpMethod.POST, this.makeAuthEntity(currentUser), TransferClient.class);
 		//TODO Choose an user to send money to. Search user, find account number and pay them. Throws an exception for a non-existent user
 	}
 	
-	public void requestMoney()
+//	public void requestMoney()
+//	{
+//		//TODO Shake down an existing user
+//	}
+	
+		public TransferClient[] getTransferHistory(AuthenticatedUser currentUser)
 	{
-		//TODO Shake down an existing user
+		ResponseEntity<TransferClient[]> transferList = restTemplate.exchange(BASE_URL + "transfers", HttpMethod.GET, this.makeAuthEntity(currentUser), TransferClient[].class);
+		return transferList.getBody();
 	}
 	
 	public UserClient[] getUserList()

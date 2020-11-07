@@ -36,11 +36,11 @@ public class TransferController {
 		transferDAO.transferFunds(transfer);
 	}	
 
-	@RequestMapping(path = "transfers/{id}", method = RequestMethod.GET)
-	public String getTransferDetails(@PathVariable int id)
-	{
-		return transferDAO.getTransferDetails(id);
-	}
+//	@RequestMapping(path = "transfers/{id}", method = RequestMethod.GET)
+//	public Transfer getTransferDetails(@PathVariable int id)
+//	{
+//		return transferDAO.getTransferDetails(id);
+//	}
 
 	@RequestMapping(path = "transfers/{id}", method = RequestMethod.PUT)
 	public void updateTransferRequest(@RequestBody Transfer transfer, @PathVariable int id)
@@ -54,10 +54,10 @@ public class TransferController {
 		return transferDAO.getTransferStatus(transfer, id);
 	}
 
-	@RequestMapping(path = "transfers/{username}", method = RequestMethod.POST)
-	public List<Transfer> getAllTransfers(@RequestBody User user)
+	@RequestMapping(path = "transfers/{id}", method = RequestMethod.GET)
+	public List<Transfer> getAllTransfers(@PathVariable int id)
 	{
-		return transferDAO.getAllTransfers(user);
+		return transferDAO.getAllTransfers(id);
 	}
 
 
