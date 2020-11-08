@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,20 @@ public class UserSqlDAO implements UserDAO {
 
 		return users;
 	}
+	
+	@Override
+	public List<User> findOtherUsers(Principal principal) {
+		List<User> users = new ArrayList<>();
+		String sql = "SELECT username FROM users WHERE username != ?";
+		SqlRowSet results = jdbcTemplate.queryForRowSet(sql, principal.getName());
+		while(results.next()) {
+			User user = mapRowToUser(results);
+			users.add(user);
+		}
+		
+		return users;
+	}
+	
 
 	@Override
 	public User findByUsername(String username) throws UsernameNotFoundException {

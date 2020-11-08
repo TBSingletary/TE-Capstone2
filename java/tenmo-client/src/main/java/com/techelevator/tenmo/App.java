@@ -93,12 +93,19 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		
 	}
 
-	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
+	private void viewPendingRequests() {		
+		
 		
 	}
 
 	private void sendBucks() {
+		
+		
+		userServices.getUserList(currentUser);
+		String username = console.getUserInput("Choose a user: ");
+		AuthenticatedUser recipient = userServices.findUserByUsername(username);
+		Integer amount = console.getUserInputInteger("Enter the amount to send");
+		userServices.sendMoney(recipient);
 		// TODO Auto-generated method stub
 		
 	}

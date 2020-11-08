@@ -42,7 +42,7 @@ public class UserServices {
 	
 	public void sendMoney(AuthenticatedUser currentUser)
 	{
-		restTemplate.exchange(BASE_URL + "transfers/send", HttpMethod.POST, this.makeAuthEntity(currentUser), TransferClient.class).getBody();
+		restTemplate.exchange(BASE_URL + "transfers/send", HttpMethod.POST, makeAuthEntity(currentUser), TransferClient.class).getBody();
 		//TODO Choose an user to send money to. Search user, find account number and pay them. Throws an exception for a non-existent user
 	}
 	
@@ -53,13 +53,22 @@ public class UserServices {
 	
 		public TransferClient[] getTransferHistory(AuthenticatedUser currentUser)
 	{
-		ResponseEntity<TransferClient[]> transferList = restTemplate.exchange(BASE_URL + "transfers" + currentUser + "/getAll", HttpMethod.GET, this.makeAuthEntity(currentUser), TransferClient[].class);
+		ResponseEntity<TransferClient[]> transferList = restTemplate.exchange(BASE_URL + "transfers/" + currentUser.getUser().getId() + "/getAll", HttpMethod.GET, this.makeAuthEntity(currentUser), TransferClient[].class);
 		return transferList.getBody();
 	}
 	
-	public UserClient[] getUserList()
+	public void getUserList(AuthenticatedUser currentUser)
 	{		
-		return restTemplate.getForObject(BASE_URL+ "users", UserClient[].class);
+		ResponseEntity<UserClient[]> userList = restTemplate.exchange(BASE_URL+ "users", HttpMethod.GET, makeAuthEntity(currentUser), UserClient[].class);
+		for(int i = 0; i < userList.getBody().length; i++)
+		{
+			System.out.println(userList.getBody()[i].toString());	
+		}
+	}
+	
+	public AuthenticatedUser findUserByUsername(String user)
+	{		
+		return restTemplate.getForObject(BASE_URL+ "users/find", AuthenticatedUser.class);
 	}
 	
 	private HttpEntity makeAuthEntity(AuthenticatedUser currentUser)

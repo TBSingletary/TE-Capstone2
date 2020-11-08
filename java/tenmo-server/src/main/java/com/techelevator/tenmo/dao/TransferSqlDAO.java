@@ -5,11 +5,13 @@ import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 
+@PreAuthorize("isAuthenticated()")
 @Service
 public class TransferSqlDAO implements TransferDAO {
 
@@ -18,6 +20,18 @@ public class TransferSqlDAO implements TransferDAO {
 	public TransferSqlDAO(JdbcTemplate jdbcTemplate)
 	{
 		this.jdbcTemplate = jdbcTemplate;
+	}
+	
+	@Override
+	public Transfer createTransfer() 
+	{
+		Transfer transfer = null;
+		String accountLog = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
+				+ "VALUES (2, 2, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?)";
+		SqlRowSet result = jdbcTemplate.queryForRowSet(accountLog, transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount());
+		
+		transfer = mapRowToTransfer(result);
+		return transfer;
 	}
 
 	@Override
@@ -29,11 +43,7 @@ public class TransferSqlDAO implements TransferDAO {
 
 		String add = "UPDATE accounts SET balance = (balance + ?) "
 				+ "WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
-		SqlRowSet addResult = jdbcTemplate.queryForRowSet(subtract, transfer.getAmount(), transfer.getAccountTo());
-		
-		String accountLog = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
-				+ "VALUES (2, 2, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?)";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(accountLog, transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()); 
+		SqlRowSet addResult = jdbcTemplate.queryForRowSet(subtract, transfer.getAmount(), transfer.getAccountTo());		 
 		
 	}
 
@@ -86,4 +96,6 @@ public class TransferSqlDAO implements TransferDAO {
 		transfer.setAmount(rs.getDouble("amount"));
 		return transfer;
 	}
+
+	
 }
