@@ -42,7 +42,7 @@ public class UserServices {
 	
 	public void sendMoney(AuthenticatedUser currentUser)
 	{
-		restTemplate.exchange(BASE_URL + "transfers", HttpMethod.POST, this.makeAuthEntity(currentUser), TransferClient.class);
+		restTemplate.exchange(BASE_URL + "transfers/send", HttpMethod.POST, this.makeAuthEntity(currentUser), TransferClient.class).getBody();
 		//TODO Choose an user to send money to. Search user, find account number and pay them. Throws an exception for a non-existent user
 	}
 	
@@ -53,7 +53,7 @@ public class UserServices {
 	
 		public TransferClient[] getTransferHistory(AuthenticatedUser currentUser)
 	{
-		ResponseEntity<TransferClient[]> transferList = restTemplate.exchange(BASE_URL + "transfers", HttpMethod.GET, this.makeAuthEntity(currentUser), TransferClient[].class);
+		ResponseEntity<TransferClient[]> transferList = restTemplate.exchange(BASE_URL + "transfers" + currentUser + "/getAll", HttpMethod.GET, this.makeAuthEntity(currentUser), TransferClient[].class);
 		return transferList.getBody();
 	}
 	

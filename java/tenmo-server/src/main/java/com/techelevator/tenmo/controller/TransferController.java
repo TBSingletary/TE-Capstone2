@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,22 +26,16 @@ public class TransferController {
 		this.transferDAO = transfersDAO;
 	}	
 
-	@RequestMapping(path = "transfers", method = RequestMethod.PUT)
-	public void createTransfer(Transfer transfer)
-	{
-		transferDAO.createTransfer(transfer);
-	}
-
-	@RequestMapping(path = "transfers", method = RequestMethod.POST)
+	@RequestMapping(path = "transfers/send", method = RequestMethod.POST)
 	public void transferFunds(@RequestBody Transfer transfer) {
 		transferDAO.transferFunds(transfer);
 	}	
 
-//	@RequestMapping(path = "transfers/{id}", method = RequestMethod.GET)
-//	public Transfer getTransferDetails(@PathVariable int id)
-//	{
-//		return transferDAO.getTransferDetails(id);
-//	}
+	@RequestMapping(path = "transfers/{id}/getDetails", method = RequestMethod.GET)
+	public Transfer getTransferDetails(@PathVariable int id)
+	{
+		return transferDAO.getTransferDetails(id);
+	}
 
 	@RequestMapping(path = "transfers/{id}", method = RequestMethod.PUT)
 	public void updateTransferRequest(@RequestBody Transfer transfer, @PathVariable int id)
@@ -54,7 +49,7 @@ public class TransferController {
 		return transferDAO.getTransferStatus(transfer, id);
 	}
 
-	@RequestMapping(path = "transfers/{id}", method = RequestMethod.GET)
+	@RequestMapping(path = "transfers/{id}/getAll", method = RequestMethod.GET)
 	public List<Transfer> getAllTransfers(@PathVariable int id)
 	{
 		return transferDAO.getAllTransfers(id);

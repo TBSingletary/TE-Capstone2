@@ -17,5 +17,4 @@ public interface TransferDAO {
 
 	public List<Transfer> getAllTransfers(int id);
 
-	public void createTransfer(Transfer transfer);
 }

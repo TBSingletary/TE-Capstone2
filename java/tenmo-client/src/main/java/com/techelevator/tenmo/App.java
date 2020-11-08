@@ -89,9 +89,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void viewTransferHistory() {
 		
-		System.out.println(userServices.getTransferHistory(currentUser));
-
-		
+		System.out.println(userServices.getTransferHistory(currentUser));		
 		
 	}
 

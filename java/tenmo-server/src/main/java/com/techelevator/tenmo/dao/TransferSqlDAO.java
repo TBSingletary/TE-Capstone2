@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,13 +21,6 @@ public class TransferSqlDAO implements TransferDAO {
 	}
 
 	@Override
-	public void createTransfer(Transfer transfer) {
-		String accountLog = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
-				+ "VALUES (3, 3, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?)";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(accountLog, transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()); 
-	}
-
-	@Override
 	public void transferFunds(Transfer transfer)
 	{
 		String subtract = "UPDATE accounts SET balance = (balance - ?) "
@@ -36,6 +30,11 @@ public class TransferSqlDAO implements TransferDAO {
 		String add = "UPDATE accounts SET balance = (balance + ?) "
 				+ "WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
 		SqlRowSet addResult = jdbcTemplate.queryForRowSet(subtract, transfer.getAmount(), transfer.getAccountTo());
+		
+		String accountLog = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
+				+ "VALUES (3, 3, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?)";
+		SqlRowSet result = jdbcTemplate.queryForRowSet(accountLog, transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()); 
+		
 	}
 
 	@Override
@@ -43,7 +42,9 @@ public class TransferSqlDAO implements TransferDAO {
 		Transfer transfer = new Transfer();
 		String sql = "SELECT * FROM transfers WHERE transfer_id = ?";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id);
-		transfer = mapRowToTransfer(result);
+		while(result.next()) {
+			transfer = mapRowToTransfer(result);
+		}
 		return transfer;
 	}
 
@@ -63,7 +64,7 @@ public class TransferSqlDAO implements TransferDAO {
 
 	@Override
 	public List<Transfer> getAllTransfers(int id) {
-		List<Transfer> transfers = null;
+		List<Transfer> transfers = new ArrayList<Transfer>();
 		String sql = "SELECT * FROM transfers WHERE account_from = ? OR account_to = ?";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id, id);
 		while(result.next())
