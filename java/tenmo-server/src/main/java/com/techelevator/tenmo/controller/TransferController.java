@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.controller;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.techelevator.tenmo.dao.TransferDAO;
@@ -26,7 +28,13 @@ public class TransferController {
 		this.transferDAO = transfersDAO;
 	}	
 
-	@RequestMapping(path = "transfers/send", method = RequestMethod.POST)
+	@RequestMapping(path = "transfers/new", method = RequestMethod.POST)
+	public Transfer createTransfer(@RequestParam String userFrom, @RequestParam String userTo, @RequestParam BigDecimal amount)
+	{
+		return transferDAO.createTransfer(userFrom, userTo, amount);
+	}
+	
+	@RequestMapping(path = "transfers/send", method = RequestMethod.PUT)
 	public void transferFunds(@RequestBody Transfer transfer) {
 		transferDAO.transferFunds(transfer);
 	}	

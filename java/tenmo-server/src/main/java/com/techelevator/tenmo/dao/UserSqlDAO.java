@@ -63,7 +63,7 @@ public class UserSqlDAO implements UserDAO {
 		for (User user : this.findAll()) {
 			if( user.getUsername().toLowerCase().equals(username.toLowerCase())) {
 				return user;
-			}
+			}			
 		}
 		throw new UsernameNotFoundException("User " + username + " was not found.");
 	}

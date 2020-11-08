@@ -40,9 +40,14 @@ public class UserServices {
 //		//TODO Have the DAO call for any transfers with pending status
 //	}
 	
-	public void sendMoney(AuthenticatedUser currentUser)
+	public TransferClient createTransfer(AuthenticatedUser currentUser, AuthenticatedUser userTo, BigDecimal amount)
+	{		
+		return restTemplate.exchange(BASE_URL + "transfers/new", HttpMethod.POST, makeAuthEntity(currentUser), TransferClient.class).getBody();
+	}
+	
+	public void sendMoney(AuthenticatedUser currentUser, TransferClient transfer)
 	{
-		restTemplate.exchange(BASE_URL + "transfers/send", HttpMethod.POST, makeAuthEntity(currentUser), TransferClient.class).getBody();
+		restTemplate.exchange(BASE_URL + "transfers/send", HttpMethod.PUT, makeAuthEntity(currentUser), TransferClient.class).getBody();
 		//TODO Choose an user to send money to. Search user, find account number and pay them. Throws an exception for a non-existent user
 	}
 	
@@ -66,9 +71,10 @@ public class UserServices {
 		}
 	}
 	
-	public AuthenticatedUser findUserByUsername(String user)
+	public AuthenticatedUser findUserByUsername(String user, AuthenticatedUser currentUser)
 	{		
-		return restTemplate.getForObject(BASE_URL+ "users/find", AuthenticatedUser.class);
+		AuthenticatedUser otherUser = restTemplate.exchange(BASE_URL+ "users/" + user + "/find",HttpMethod.GET, makeAuthEntity(currentUser), AuthenticatedUser.class).getBody();
+		return otherUser;
 	}
 	
 	private HttpEntity makeAuthEntity(AuthenticatedUser currentUser)

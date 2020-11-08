@@ -98,15 +98,16 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		
 	}
 
-	private void sendBucks() {
-		
+	private void sendBucks() {		
 		
 		userServices.getUserList(currentUser);
 		String username = console.getUserInput("Choose a user: ");
-		AuthenticatedUser recipient = userServices.findUserByUsername(username);
+		AuthenticatedUser recipient = userServices.findUserByUsername(username, currentUser);
 		Integer amount = console.getUserInputInteger("Enter the amount to send");
-		userServices.sendMoney(recipient);
-		// TODO Auto-generated method stub
+		TransferClient transfer = userServices.createTransfer(currentUser, recipient, new BigDecimal(amount));
+		userServices.sendMoney(currentUser, transfer);
+		System.out.println(userServices.getCurrentBalance(currentUser));
+		System.out.println(userServices.getCurrentBalance(recipient));
 		
 	}
 

@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,12 +24,12 @@ public class TransferSqlDAO implements TransferDAO {
 	}
 	
 	@Override
-	public Transfer createTransfer() 
+	public Transfer createTransfer(String userFrom, String userTo, BigDecimal amount) 
 	{
 		Transfer transfer = null;
 		String accountLog = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
 				+ "VALUES (2, 2, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?)";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(accountLog, transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount());
+		SqlRowSet result = jdbcTemplate.queryForRowSet(accountLog, userFrom, userTo, amount);
 		
 		transfer = mapRowToTransfer(result);
 		return transfer;
@@ -43,7 +44,7 @@ public class TransferSqlDAO implements TransferDAO {
 
 		String add = "UPDATE accounts SET balance = (balance + ?) "
 				+ "WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
-		SqlRowSet addResult = jdbcTemplate.queryForRowSet(subtract, transfer.getAmount(), transfer.getAccountTo());		 
+		SqlRowSet addResult = jdbcTemplate.queryForRowSet(add, transfer.getAmount(), transfer.getAccountTo());		 
 		
 	}
 
