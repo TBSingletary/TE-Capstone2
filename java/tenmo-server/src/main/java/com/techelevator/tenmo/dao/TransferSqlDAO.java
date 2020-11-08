@@ -32,7 +32,7 @@ public class TransferSqlDAO implements TransferDAO {
 		SqlRowSet addResult = jdbcTemplate.queryForRowSet(subtract, transfer.getAmount(), transfer.getAccountTo());
 		
 		String accountLog = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
-				+ "VALUES (3, 3, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?)";
+				+ "VALUES (2, 2, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?)";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(accountLog, transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()); 
 		
 	}
