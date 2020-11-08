@@ -62,14 +62,15 @@ public class UserServices {
 		return transferList.getBody();
 	}
 	
-	public void getUserList(AuthenticatedUser currentUser)
-	{		
-		ResponseEntity<UserClient[]> userList = restTemplate.exchange(BASE_URL+ "users", HttpMethod.GET, makeAuthEntity(currentUser), UserClient[].class);
-		for(int i = 0; i < userList.getBody().length; i++)
-		{
-			System.out.println(userList.getBody()[i].toString());	
-		}
-	}
+	public UserClient[] getUserList(AuthenticatedUser currentUser)
+	{	
+		UserClient[] users = restTemplate.exchange(BASE_URL + "users", HttpMethod.GET, makeAuthEntity(currentUser), UserClient[].class).getBody();
+		for(int i = 0; i < users.length; i++) {
+			if(!users[i].getId().equals(currentUser.getUser().getId())) {
+			System.out.println(users[i].getId() + "        " + users[i].getUsername());	
+			}
+		}return users;
+	}	
 	
 	public AuthenticatedUser findUserByUsername(String user, AuthenticatedUser currentUser)
 	{		

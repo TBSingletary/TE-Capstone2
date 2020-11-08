@@ -29,15 +29,15 @@ public class TransferController {
 	}	
 
 	@RequestMapping(path = "transfers/new", method = RequestMethod.POST)
-	public Transfer createTransfer(@RequestParam String userFrom, @RequestParam String userTo, @RequestParam BigDecimal amount)
+	public void createTransfer(@RequestBody Transfer transfer)
 	{
-		return transferDAO.createTransfer(userFrom, userTo, amount);
+		transferDAO.createTransfer(transfer);
 	}
 	
-	@RequestMapping(path = "transfers/send", method = RequestMethod.PUT)
-	public void transferFunds(@RequestBody Transfer transfer) {
-		transferDAO.transferFunds(transfer);
-	}	
+//	@RequestMapping(path = "transfers/send", method = RequestMethod.PUT)
+//	public void transferFunds(@RequestBody Transfer transfer) {
+//		transferDAO.transferFunds(transfer);
+//	}	
 
 	@RequestMapping(path = "transfers/{id}/getDetails", method = RequestMethod.GET)
 	public Transfer getTransferDetails(@PathVariable int id)

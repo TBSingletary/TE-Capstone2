@@ -3,14 +3,24 @@ package com.techelevator.tenmo;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestTemplate;
+
+import com.techelevator.tenmo.models.AccountClient;
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.TransferClient;
+import com.techelevator.tenmo.models.UserClient;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
 import com.techelevator.tenmo.services.UserServices;
 import com.techelevator.view.ConsoleService;
+
+import okhttp3.internal.http.HttpMethod;
 
 public class App {
 
@@ -28,10 +38,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private static final String MAIN_MENU_OPTION_LOGIN = "Login as different user";
 	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
 	
-    private AuthenticatedUser currentUser;
+	public static String AUTH_TOKEN = "";
+	private RestTemplate restTemplate = new RestTemplate();
+	private AuthenticatedUser currentUser;
     private ConsoleService console;
     private AuthenticationService authenticationService;
     private UserServices userServices;
+    private Scanner userScanner = new Scanner(System.in);
 
     public static void main(String[] args) {
     	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL), new UserServices(API_BASE_URL));
@@ -100,14 +113,27 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void sendBucks() {		
 		
-		userServices.getUserList(currentUser);
-		String username = console.getUserInput("Choose a user: ");
-		AuthenticatedUser recipient = userServices.findUserByUsername(username, currentUser);
-		Integer amount = console.getUserInputInteger("Enter the amount to send");
-		TransferClient transfer = userServices.createTransfer(currentUser, recipient, new BigDecimal(amount));
-		userServices.sendMoney(currentUser, transfer);
-		System.out.println(userServices.getCurrentBalance(currentUser));
-		System.out.println(userServices.getCurrentBalance(recipient));
+		TransferClient transfer = new TransferClient();
+		AccountClient account = null;
+		UserClient[] user = null;
+		
+		//user = restTemplate.exchange(API_BASE_URL + "transfers/users/", HttpMethod.GET, makeAuthEntity(), UserClient[].class).getBody();
+		//account = restTemplate.exchange(API_BASE_URL + "accounts/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(), AccountClient.class).getBody();
+		
+		System.out.println("------------------------------------------");
+		System.out.println("User");
+		System.out.println("ID      Name");
+		System.out.println("------------------------------------------");
+		//		UserClient[] users = userServices.getUserList(currentUser);
+////		userServices.getUserList(currentUser);
+//		System.out.println(users);
+//		String username = console.getUserInput("Choose a user: ");
+//		AuthenticatedUser recipient = userServices.findUserByUsername(username, currentUser);
+//		Integer amount = console.getUserInputInteger("Enter the amount to send");
+//		TransferClient transfer = userServices.createTransfer(currentUser, recipient, new BigDecimal(amount));
+//		userServices.sendMoney(currentUser, transfer);
+//		System.out.println(userServices.getCurrentBalance(currentUser));
+//		System.out.println(userServices.getCurrentBalance(recipient));
 		
 	}
 
@@ -175,5 +201,14 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		String username = console.getUserInput("Username");
 		String password = console.getUserInput("Password");
 		return new UserCredentials(username, password);
+	}
+	
+	private HttpEntity makeAuthEntity()
+	{
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(AUTH_TOKEN);
+		HttpEntity entity = new HttpEntity(headers);
+		return entity;
 	}
 }

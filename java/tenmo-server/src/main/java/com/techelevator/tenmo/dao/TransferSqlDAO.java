@@ -24,29 +24,32 @@ public class TransferSqlDAO implements TransferDAO {
 	}
 	
 	@Override
-	public Transfer createTransfer(String userFrom, String userTo, BigDecimal amount) 
+	public Transfer createTransfer(Transfer transfer) 
 	{
-		Transfer transfer = null;
-		String accountLog = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
-				+ "VALUES (2, 2, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?)";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(accountLog, userFrom, userTo, amount);
+		String transferFunds = "BEGIN TRANSACTION;"
+				+ "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (2, 2, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?); "
+				+ "UPDATE accounts SET balance = balance - (SELECT amount FROM transfers WHERE transfer_id = ?) WHERE user_id = (SELECT user_id FROM users WHERE username = ?); "
+				+ "UPDATE accounts SET balance = balance + (SELECT amount FROM transfers WHERE transfer_id = ?) WHERE user_id = (SELECT user_id FROM users WHERE username = ?); "
+				+ "COMMIT";
+				
+		SqlRowSet result = jdbcTemplate.queryForRowSet(transferFunds);
 		
 		transfer = mapRowToTransfer(result);
 		return transfer;
 	}
 
-	@Override
-	public void transferFunds(Transfer transfer)
-	{
-		String subtract = "UPDATE accounts SET balance = (balance - ?) "
-				+ "WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
-		SqlRowSet subtractResult = jdbcTemplate.queryForRowSet(subtract, transfer.getAmount(), transfer.getAccountFrom());
-
-		String add = "UPDATE accounts SET balance = (balance + ?) "
-				+ "WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
-		SqlRowSet addResult = jdbcTemplate.queryForRowSet(add, transfer.getAmount(), transfer.getAccountTo());		 
-		
-	}
+//	@Override
+//	public void transferFunds(Transfer transfer)
+//	{
+//		String subtract = "UPDATE accounts SET balance = balance - (SELECT amount FROM transfers WHERE transfer_id = ?) "
+//				+ "WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
+//		SqlRowSet subtractResult = jdbcTemplate.queryForRowSet(subtract, transfer.getAmount(), transfer.getAccountFrom());
+//
+//		String add = "UPDATE accounts SET balance = balance + (SELECT amount FROM transfers WHERE transfer_id = ?) "
+//				+ "WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
+//		SqlRowSet addResult = jdbcTemplate.queryForRowSet(add, transfer.getAmount(), transfer.getAccountTo());		 
+//		
+//	}
 
 	@Override
 	public Transfer getTransferDetails(int id) {

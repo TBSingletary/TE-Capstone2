@@ -8,9 +8,9 @@ import com.techelevator.tenmo.model.User;
 
 public interface TransferDAO {
 	
-	public Transfer createTransfer(String userFrom, String userTo, BigDecimal amount);
+	public Transfer createTransfer(Transfer transfer);
 	
-	public void transferFunds(Transfer transfer);
+//	public void transferFunds(Transfer transfer);
 	
 	public Transfer getTransferDetails(int id);
 	
