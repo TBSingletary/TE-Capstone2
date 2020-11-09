@@ -29,15 +29,14 @@ public class UserController {
 	public List<User> listAllUsers() {
 		return userDAO.findAll();
 	}
-	
+
 	@RequestMapping(path = "users/{username}/find", method = RequestMethod.GET)
 	public User findByUsername(@PathVariable String username) {
 		return userDAO.findByUsername(username);
 	}
 
 	@RequestMapping(path = "accounts/balance", method = RequestMethod.GET)
-	public BigDecimal getUserBalance(Principal principal)
-	{
+	public BigDecimal getUserBalance(Principal principal) {
 		return userDAO.getUserBalance(principal.getName());
 	}
 

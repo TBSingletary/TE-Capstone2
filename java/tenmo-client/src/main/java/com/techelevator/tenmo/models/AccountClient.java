@@ -7,7 +7,7 @@ public class AccountClient {
 	private int accountId;
 	private int userId;
 	private BigDecimal balance;
-	
+
 	public int getAccountId() {
 		return accountId;
 	}
@@ -26,11 +26,11 @@ public class AccountClient {
 	public void setBalance(BigDecimal balance) {
 		this.balance = balance;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "AccountClient [accountId=" + accountId + ", userId=" + userId + ", balance=" + balance + "]";
 	}
-	
-	
+
+
 }

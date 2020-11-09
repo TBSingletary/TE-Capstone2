@@ -43,7 +43,7 @@ public class UserSqlDAO implements UserDAO {
 
 		return users;
 	}
-	
+
 	@Override
 	public List<User> findOtherUsers(Principal principal) {
 		List<User> users = new ArrayList<>();
@@ -53,10 +53,10 @@ public class UserSqlDAO implements UserDAO {
 			User user = mapRowToUser(results);
 			users.add(user);
 		}
-		
+
 		return users;
 	}
-	
+
 
 	@Override
 	public User findByUsername(String username) throws UsernameNotFoundException {

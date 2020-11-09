@@ -10,6 +10,7 @@ public class TransferClient {
 	private Integer accountFrom;
 	private Integer accountTo;
 	private BigDecimal amount;
+	private String username;
 	
 	public TransferClient() {
 		
@@ -70,6 +71,14 @@ public class TransferClient {
 
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
+	}
+	
+	public String getUsername() {
+		return username;
+	}
+	
+	public void setUsername(String username) {
+		this.username = username;
 	}
 	
 }

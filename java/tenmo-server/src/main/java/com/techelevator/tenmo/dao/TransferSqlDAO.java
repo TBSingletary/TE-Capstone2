@@ -1,6 +1,5 @@
 package com.techelevator.tenmo.dao;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +9,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.User;
 
 @PreAuthorize("isAuthenticated()")
 @Service
@@ -18,44 +16,40 @@ public class TransferSqlDAO implements TransferDAO {
 
 	private JdbcTemplate jdbcTemplate;
 
-	public TransferSqlDAO(JdbcTemplate jdbcTemplate)
-	{
+	public TransferSqlDAO(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 	}
-	
+
 	@Override
-	public Transfer createTransfer(Transfer transfer) 
-	{
+	public Transfer createTransfer(Transfer transfer) {
 		String transferFunds = "BEGIN TRANSACTION;"
 				+ "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (2, 2, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?); "
 				+ "UPDATE accounts SET balance = balance - (SELECT amount FROM transfers WHERE transfer_id = ?) WHERE user_id = (SELECT user_id FROM users WHERE username = ?); "
 				+ "UPDATE accounts SET balance = balance + (SELECT amount FROM transfers WHERE transfer_id = ?) WHERE user_id = (SELECT user_id FROM users WHERE username = ?); "
 				+ "COMMIT";
-				
+
 		SqlRowSet result = jdbcTemplate.queryForRowSet(transferFunds);
-		
+
 		transfer = mapRowToTransfer(result);
 		return transfer;
 	}
 
-//	@Override
-//	public void transferFunds(Transfer transfer)
-//	{
-//		String subtract = "UPDATE accounts SET balance = balance - (SELECT amount FROM transfers WHERE transfer_id = ?) "
-//				+ "WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
-//		SqlRowSet subtractResult = jdbcTemplate.queryForRowSet(subtract, transfer.getAmount(), transfer.getAccountFrom());
-//
-//		String add = "UPDATE accounts SET balance = balance + (SELECT amount FROM transfers WHERE transfer_id = ?) "
-//				+ "WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
-//		SqlRowSet addResult = jdbcTemplate.queryForRowSet(add, transfer.getAmount(), transfer.getAccountTo());		 
-//		
-//	}
+	@Override
+	public Transfer getTransferDetails(Long transferId) {
+		Transfer transfer = new Transfer();
+		String sql = "SELECT * FROM transfers t JOIN accounts a ON t.account_from = a_account_id JOIN users u ON u.user_id = a.user_id WHERE transfer_id = ?";
+		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, transferId);
+		while(result.next()) {
+			transfer = mapRowToTransfer(result);
+		}
+		return transfer;
+	}
 
 	@Override
-	public Transfer getTransferDetails(int id) {
+	public Transfer getTransferFromDetails(Long transferId) {
 		Transfer transfer = new Transfer();
-		String sql = "SELECT * FROM transfers WHERE transfer_id = ?";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id);
+		String sql = "SELECT * FROM transfers t JOIN accounts a ON t.account_to = a_account_id JOIN users u ON u.user_id = a.user_id WHERE transfer_id = ?";
+		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, transferId);
 		while(result.next()) {
 			transfer = mapRowToTransfer(result);
 		}
@@ -81,15 +75,13 @@ public class TransferSqlDAO implements TransferDAO {
 		List<Transfer> transfers = new ArrayList<Transfer>();
 		String sql = "SELECT * FROM transfers WHERE account_from = ? OR account_to = ?";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id, id);
-		while(result.next())
-		{
+		while(result.next()) {
 			transfers.add(mapRowToTransfer(result));
 		}
 		return transfers;
 	}
-	
-	private Transfer mapRowToTransfer(SqlRowSet rs)
-	{
+
+	private Transfer mapRowToTransfer(SqlRowSet rs) {
 		Transfer transfer = new Transfer();
 		transfer.setTransferId(rs.getLong("transfer_id"));
 		transfer.setTransferTypeId(rs.getLong("transfer_type_id"));
@@ -100,5 +92,5 @@ public class TransferSqlDAO implements TransferDAO {
 		return transfer;
 	}
 
-	
+
 }
