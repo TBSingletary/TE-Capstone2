@@ -22,10 +22,10 @@ public class TransferSqlDAO implements TransferDAO {
 
 	@Override
 	public Transfer createTransfer(Transfer transfer) {
-		String transferFunds = "BEGIN TRANSACTION;"
-				+ "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (2, 2, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?); "
-				+ "UPDATE accounts SET balance = balance - (SELECT amount FROM transfers WHERE transfer_id = ?) WHERE user_id = (SELECT user_id FROM users WHERE username = ?); "
-				+ "UPDATE accounts SET balance = balance + (SELECT amount FROM transfers WHERE transfer_id = ?) WHERE user_id = (SELECT user_id FROM users WHERE username = ?); "
+		String transferFunds = "BEGIN TRANSACTION"
+				+ "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (2, 2, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?) "
+				+ "UPDATE accounts SET balance = balance - (SELECT amount FROM transfers WHERE transfer_id = ?) WHERE user_id = (SELECT user_id FROM users WHERE username = ?) "
+				+ "UPDATE accounts SET balance = balance + (SELECT amount FROM transfers WHERE transfer_id = ?) WHERE user_id = (SELECT user_id FROM users WHERE username = ?) "
 				+ "COMMIT";
 
 		SqlRowSet result = jdbcTemplate.queryForRowSet(transferFunds);
