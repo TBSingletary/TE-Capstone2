@@ -8,7 +8,7 @@ public interface TransferDAO {
 	
 	public Transfer createTransfer(Transfer transfer);
 	
-	public Transfer getTransferDetails(Long transferId);
+	public Transfer getTransferDetails(int transferId);
 	
 	public void updateTransferRequest(Transfer transfer, int id);
 	
@@ -16,6 +16,6 @@ public interface TransferDAO {
 
 	public List<Transfer> getAllTransfers(int id);
 
-	Transfer getTransferFromDetails(Long transferId);
+	Transfer getTransferFromDetails(int transferId);
 
 }

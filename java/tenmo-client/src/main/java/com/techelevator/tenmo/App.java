@@ -114,7 +114,8 @@ public class App {
 			System.out.println("---------------------------------");
 
 		}catch (Exception ex) {
-			System.out.println("No transfers found. Enter 0 to Exit to Main Menu.");
+			System.out.println("No transfers found. Returning to main menu");
+			mainMenu();
 		}
 
 		Integer detailId = console.getUserInputInteger("Please enter Transfer ID to view details");
@@ -179,6 +180,7 @@ public class App {
 		transfer.setTransferTypeId(2);
 
 		Integer sendToId = console.getUserInputInteger("Please enter the ID of the user you are sending to");
+//		currentUser.getUser().getId();
 		if(sendToId == 0) {
 			mainMenu();
 		}
@@ -197,7 +199,7 @@ public class App {
 			transfer.setAmount(amountToSend);
 
 			transfer = restTemplate.postForObject(API_BASE_URL + "transfers/new/", makeTransferEntity(transfer), TransferClient.class);
-
+			System.out.println(transfer.toString());
 		}
 
 
@@ -272,7 +274,7 @@ public class App {
 	private HttpEntity makeAuthEntity() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.setBearerAuth(AUTH_TOKEN);
+		headers.setBearerAuth(currentUser.getToken());
 		HttpEntity entity = new HttpEntity(headers);
 		return entity;
 	}
@@ -280,8 +282,8 @@ public class App {
 	private HttpEntity makeTransferEntity(TransferClient transfer) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.setBearerAuth(AUTH_TOKEN);
-		HttpEntity<TransferClient> entity = new HttpEntity(transfer, headers);
+		headers.setBearerAuth(currentUser.getToken());
+		HttpEntity<TransferClient> entity = new HttpEntity<TransferClient>(transfer, headers);
 		return entity;
 	}
 }

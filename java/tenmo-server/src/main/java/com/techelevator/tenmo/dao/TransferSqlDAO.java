@@ -22,20 +22,23 @@ public class TransferSqlDAO implements TransferDAO {
 
 	@Override
 	public Transfer createTransfer(Transfer transfer) {
-		String transferFunds = "BEGIN TRANSACTION"
-				+ "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (2, 2, (SELECT user_id FROM users WHERE username = ?), (SELECT user_id FROM users WHERE username = ?), ?) "
-				+ "UPDATE accounts SET balance = balance - (SELECT amount FROM transfers WHERE transfer_id = ?) WHERE user_id = (SELECT user_id FROM users WHERE username = ?) "
-				+ "UPDATE accounts SET balance = balance + (SELECT amount FROM transfers WHERE transfer_id = ?) WHERE user_id = (SELECT user_id FROM users WHERE username = ?) "
-				+ "COMMIT";
+		
+		//Transfer transfer = new Transfer();
+		
+		String transferFunds = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
+				+ "VALUES (2, 2, (SELECT account_id FROM accounts WHERE user_id = ?), (SELECT account_id FROM accounts WHERE user_id = ?), ?); "
+				+ "UPDATE accounts SET balance = balance - ? WHERE account_id = ?; "
+				+ "UPDATE accounts SET balance = balance + ? WHERE account_id = ?;";
+				
 
-		SqlRowSet result = jdbcTemplate.queryForRowSet(transferFunds);
-
+		SqlRowSet result = jdbcTemplate.queryForRowSet(transferFunds, transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount(), transfer.getAmount(), transfer.getAccountTo(), transfer.getAmount(), transfer.getAccountFrom());
+		
 		transfer = mapRowToTransfer(result);
 		return transfer;
 	}
 
 	@Override
-	public Transfer getTransferDetails(Long transferId) {
+	public Transfer getTransferDetails(int transferId) {
 		Transfer transfer = new Transfer();
 		String sql = "SELECT * FROM transfers t JOIN accounts a ON t.account_from = a_account_id JOIN users u ON u.user_id = a.user_id WHERE transfer_id = ?";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, transferId);
@@ -46,7 +49,7 @@ public class TransferSqlDAO implements TransferDAO {
 	}
 
 	@Override
-	public Transfer getTransferFromDetails(Long transferId) {
+	public Transfer getTransferFromDetails(int transferId) {
 		Transfer transfer = new Transfer();
 		String sql = "SELECT * FROM transfers t JOIN accounts a ON t.account_to = a_account_id JOIN users u ON u.user_id = a.user_id WHERE transfer_id = ?";
 		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, transferId);
@@ -83,12 +86,12 @@ public class TransferSqlDAO implements TransferDAO {
 
 	private Transfer mapRowToTransfer(SqlRowSet rs) {
 		Transfer transfer = new Transfer();
-		transfer.setTransferId(rs.getLong("transfer_id"));
-		transfer.setTransferTypeId(rs.getLong("transfer_type_id"));
-		transfer.setTransferStatusId(rs.getLong("transfer_status_id"));
-		transfer.setAccountFrom(rs.getLong("account_from"));
-		transfer.setAccountTo(rs.getLong("account_to"));
-		transfer.setAmount(rs.getDouble("amount"));
+		transfer.setTransferId(rs.getInt("transfer_id"));
+		transfer.setTransferTypeId(rs.getInt("transfer_type_id"));
+		transfer.setTransferStatusId(rs.getInt("transfer_status_id"));
+		transfer.setAccountFrom(rs.getInt("account_from"));
+		transfer.setAccountTo(rs.getInt("account_to"));
+		transfer.setAmount(rs.getBigDecimal("amount"));
 		return transfer;
 	}
 
