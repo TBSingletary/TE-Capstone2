@@ -1,16 +1,12 @@
 package com.techelevator.tenmo;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.techelevator.tenmo.models.AccountClient;
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.TransferClient;
 import com.techelevator.tenmo.models.UserClient;
@@ -20,8 +16,7 @@ import com.techelevator.tenmo.services.AuthenticationServiceException;
 import com.techelevator.tenmo.services.UserServices;
 import com.techelevator.view.ConsoleService;
 
-import okhttp3.internal.http.HttpMethod;
-
+@RestController
 public class App {
 
 private static final String API_BASE_URL = "http://localhost:8080/";
@@ -44,7 +39,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     private ConsoleService console;
     private AuthenticationService authenticationService;
     private UserServices userServices;
-    private Scanner userScanner = new Scanner(System.in);
 
     public static void main(String[] args) {
     	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL), new UserServices(API_BASE_URL));
@@ -94,7 +88,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
+		
 		System.out.print("Current Balance: $");
 		System.out.println(userServices.getCurrentBalance(currentUser));	
 				
@@ -107,34 +101,51 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewPendingRequests() {		
-		
-		
+		//OPTIONAL	
 	}
 
 	private void sendBucks() {		
 		
 		TransferClient transfer = new TransferClient();
-		AccountClient account = null;
+		UserServices account = null;
 		UserClient[] user = null;
 		
-		//user = restTemplate.exchange(API_BASE_URL + "transfers/users/", HttpMethod.GET, makeAuthEntity(), UserClient[].class).getBody();
-		//account = restTemplate.exchange(API_BASE_URL + "accounts/" + currentUser.getUser().getId(), HttpMethod.GET, makeAuthEntity(), AccountClient.class).getBody();
+		System.out.println("---------------------------------");
+		System.out.println("ID     Name");
+		System.out.println("---------------------------------");
 		
-		System.out.println("------------------------------------------");
-		System.out.println("User");
-		System.out.println("ID      Name");
-		System.out.println("------------------------------------------");
-		//		UserClient[] users = userServices.getUserList(currentUser);
-////		userServices.getUserList(currentUser);
-//		System.out.println(users);
-//		String username = console.getUserInput("Choose a user: ");
-//		AuthenticatedUser recipient = userServices.findUserByUsername(username, currentUser);
-//		Integer amount = console.getUserInputInteger("Enter the amount to send");
-//		TransferClient transfer = userServices.createTransfer(currentUser, recipient, new BigDecimal(amount));
-//		userServices.sendMoney(currentUser, transfer);
-//		System.out.println(userServices.getCurrentBalance(currentUser));
-//		System.out.println(userServices.getCurrentBalance(recipient));
+		System.out.println(userServices.getUserList(currentUser));
 		
+		System.out.println("---------------------------------");
+		
+		transfer.setAccountFrom(currentUser.getUser().getId());
+		transfer.setTransferId(1);
+		transfer.setTransferStatusId(2);
+		transfer.setTransferTypeId(2);
+		
+		Integer sendToId = console.getUserInputInteger("Please enter the ID of the user you are sending to");
+		if(sendToId == 0) {
+			mainMenu();
+		}
+		
+		boolean balanceCheck = false;
+		
+		while(!balanceCheck) {
+			BigDecimal amountToSend = console.getUserInputBigDecimal("Please enter the amount to send");
+			if(amountToSend.compareTo(userServices.getCurrentBalance(currentUser)) == 1) {
+				System.out.println("Sorry, insufficient funds.");
+			}
+			else {
+				balanceCheck = true;
+			}
+			transfer.setAccountTo(sendToId);
+			transfer.setAmount(amountToSend);
+			
+			transfer = restTemplate.postForObject(API_BASE_URL + "transfers/new/", makeTransferEntity(transfer), TransferClient.class);
+			
+		}
+		
+	
 	}
 
 	private void requestBucks() {
@@ -209,6 +220,15 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.setBearerAuth(AUTH_TOKEN);
 		HttpEntity entity = new HttpEntity(headers);
+		return entity;
+	}
+	
+	private HttpEntity makeTransferEntity(TransferClient transfer)
+	{
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(AUTH_TOKEN);
+		HttpEntity<TransferClient> entity = new HttpEntity(transfer, headers);
 		return entity;
 	}
 }

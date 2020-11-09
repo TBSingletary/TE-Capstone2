@@ -27,5 +27,10 @@ public class AccountClient {
 		this.balance = balance;
 	}
 	
+	@Override
+	public String toString() {
+		return "AccountClient [accountId=" + accountId + ", userId=" + userId + ", balance=" + balance + "]";
+	}
+	
 	
 }

@@ -87,8 +87,7 @@ public class TransferSqlDAO implements TransferDAO {
 		}
 		return transfers;
 	}
-
-
+	
 	private Transfer mapRowToTransfer(SqlRowSet rs)
 	{
 		Transfer transfer = new Transfer();
