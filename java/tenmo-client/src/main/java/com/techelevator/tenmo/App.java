@@ -116,7 +116,7 @@ public class App {
 		showUser();
 		Integer toUserId = console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)");
 		if (toUserId != 0) {
-			int amount = console.getUserInputInteger("Enter amount");
+			int amount = console.getUserInputInteger("Enter amount to send");
 			BigDecimal amountBD = new BigDecimal(amount);
 			Transfer transferProcess = new Transfer(amountBD, toUserId);
 			transferService.createTransfer(currentUser.getToken());
@@ -133,6 +133,7 @@ public class App {
 	}
 
 	private void exitProgram() {
+		System.out.println("Thank you for choosing TEnmo!");
 		System.exit(0);
 	}
 

@@ -32,7 +32,6 @@ public class TransferController {
 		long userId = accountController.getCurrentUserId(principal);
 		int userIdInt = (int) userId;
 		transfer.setAccount_from(userIdInt);
-
 	}
 
 	@RequestMapping(value = "/transfer", method = RequestMethod.POST)
