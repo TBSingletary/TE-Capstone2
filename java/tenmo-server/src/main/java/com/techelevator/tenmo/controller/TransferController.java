@@ -34,7 +34,6 @@ public class TransferController {
 	public void update(@RequestBody Transfer transfer) {
 		transferDAO.addFunds(transfer.getAmount(), transfer.getUserToId());
 		transferDAO.withdrawFunds(transfer.getAmount(), transfer.getUserToId());
-
 	}
 
 	@ResponseStatus(HttpStatus.CREATED)

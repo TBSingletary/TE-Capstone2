@@ -14,7 +14,7 @@ public interface TransferDAO {
 
 	void withdrawFunds(BigDecimal amount, int userFromId);
 
-	public Transfer addTransfer(Transfer transfer, BigDecimal amount, int toUserId, int fromUserId);
+	public Transfer addTransfer(Transfer transfer, BigDecimal amount, int userToId, int userFromId);
 
 	public List <Transfer> getTransfers(int accountId);
 

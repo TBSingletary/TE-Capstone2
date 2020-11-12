@@ -36,8 +36,7 @@ public class TransferService {
 		HttpEntity request = new HttpEntity<>(headers);
 		List<UserClient> users = null;
 		try {
-			UserClient[] userArray = restTemplate.exchange(API_BASE_URL + "/users", HttpMethod.GET, request, UserClient[].class)
-					.getBody();
+			UserClient[] userArray = restTemplate.exchange(API_BASE_URL + "/users", HttpMethod.GET, request, UserClient[].class).getBody();
 			users = Arrays.asList(userArray);
 		} catch (RestClientResponseException ex) {
 			console.printError(ex.getRawStatusCode() + " : " + ex.getStatusText());

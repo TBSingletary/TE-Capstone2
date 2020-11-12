@@ -1,12 +1,7 @@
 package com.techelevator.tenmo.controller;
 
-import java.math.BigDecimal;
-import java.security.Principal;
-import java.util.List;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,11 +18,6 @@ public class UserController {
 
 	public UserController(UserDAO userDAO) {
 		this.userDAO = userDAO;
-	}
-
-	@RequestMapping(path = "users", method = RequestMethod.GET)
-	public List<User> listAllUsers() {
-		return userDAO.findAll();
 	}
 
 	@RequestMapping(path = "users/{username}/find", method = RequestMethod.GET)

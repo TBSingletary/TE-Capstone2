@@ -28,10 +28,10 @@ public class AccountBalanceService {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(jwt);
-		HttpEntity request = new HttpEntity<>(headers);
+		HttpEntity entity = new HttpEntity<>(headers);
 		AccountClient account = null;
 		try {
-			account = restTemplate.exchange(API_BASE_URL + "accounts", HttpMethod.GET, request, AccountClient.class).getBody();
+			account = restTemplate.exchange(API_BASE_URL + "/accounts", HttpMethod.GET, entity, AccountClient.class).getBody();
 		} catch (RestClientResponseException ex) {
 			console.printError(ex.getRawStatusCode() + " : " + ex.getStatusText());
 		} catch (ResourceAccessException ex) {

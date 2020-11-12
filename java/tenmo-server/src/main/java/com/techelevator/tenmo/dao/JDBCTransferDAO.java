@@ -24,12 +24,9 @@ public class JDBCTransferDAO implements TransferDAO {
 
 	@Override
 	public List<User> getAllUsers() {
-
-		String SQLSelect = "Select username, user_id from users";
-		SqlRowSet rowSet = jdbcTemplate.queryForRowSet(SQLSelect);
-
+		String sql = "SELECT username, user_id FROM users";
+		SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
 		List<User> users = new ArrayList<>();
-
 		while (rowSet.next()) {
 			User user = mapRowToUser(rowSet);
 			users.add(user);
@@ -121,7 +118,7 @@ public class JDBCTransferDAO implements TransferDAO {
 
 	private User mapRowToUser(SqlRowSet rowSet) {
 		User user = new User();
-		user.setId(rowSet.getLong("user_id"));
+		user.setId(rowSet.getInt("user_id"));
 		user.setUsername(rowSet.getString("username"));
 		return user;
 	}
