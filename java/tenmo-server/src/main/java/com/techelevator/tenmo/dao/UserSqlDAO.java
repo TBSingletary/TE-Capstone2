@@ -89,17 +89,4 @@ public class UserSqlDAO implements UserDAO {
 		return user;
 	}
 
-	@Override
-	public User findUserByAccountId(int accountId) {
-		User user = new User();
-		String selectSql = "SELECT users.user_id, username, password_hash FROM users\n" +
-				"JOIN accounts ON users.user_id = accounts.user_id\n" +
-				"WHERE account_id = ?";
-		SqlRowSet rowSet = jdbcTemplate.queryForRowSet(selectSql, accountId);
-
-		while (rowSet.next()) {
-			user = mapRowToUser(rowSet);    
-		}
-		return user;
-	}
 }

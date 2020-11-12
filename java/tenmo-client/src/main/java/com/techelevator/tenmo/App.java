@@ -1,23 +1,18 @@
 package com.techelevator.tenmo;
 
+import java.math.BigDecimal;
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.RestController;
-
-import com.techelevator.tenmo.models.AccountClient;
 import com.techelevator.tenmo.models.AuthenticatedUser;
-import com.techelevator.tenmo.models.TransferClient;
-import com.techelevator.tenmo.models.UserClient;
+import com.techelevator.tenmo.models.Transfer;
+import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserCredentials;
-import com.techelevator.tenmo.services.AccountBalanceService;
+import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
 import com.techelevator.tenmo.services.TransferService;
 import com.techelevator.tenmo.services.UserService;
 import com.techelevator.view.ConsoleService;
 
-@RestController
 public class App {
 
 	private static final String API_BASE_URL = "http://localhost:8080/";
@@ -25,30 +20,44 @@ public class App {
 	private static final String MENU_OPTION_EXIT = "Exit";
 	private static final String LOGIN_MENU_OPTION_REGISTER = "Register";
 	private static final String LOGIN_MENU_OPTION_LOGIN = "Login";
-	private static final String[] LOGIN_MENU_OPTIONS = { LOGIN_MENU_OPTION_REGISTER, LOGIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
+	private static final String[] LOGIN_MENU_OPTIONS = { LOGIN_MENU_OPTION_REGISTER, LOGIN_MENU_OPTION_LOGIN,
+			MENU_OPTION_EXIT };
 	private static final String MAIN_MENU_OPTION_VIEW_BALANCE = "View your current balance";
 	private static final String MAIN_MENU_OPTION_SEND_BUCKS = "Send TE bucks";
 	private static final String MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS = "View your past transfers";
 	private static final String MAIN_MENU_OPTION_REQUEST_BUCKS = "Request TE bucks";
 	private static final String MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS = "View your pending requests";
 	private static final String MAIN_MENU_OPTION_LOGIN = "Login as different user";
-	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
+	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS,
+			MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS,
+			MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
+
+
+	public static String AUTH_TOKEN = "";
 
 	private AuthenticatedUser currentUser;
 	private ConsoleService console;
+	private User user;
+	private Transfer transfer;
 	private AuthenticationService authenticationService;
-	private AccountBalanceService accountBalanceService;
-	private TransferService transferService;
+	private AccountService accountService;
 	private UserService userService;
+	private TransferService transferService;
 
 	public static void main(String[] args) {
-		App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL));
+		App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL),
+				new AccountService(API_BASE_URL), new UserService(API_BASE_URL), new TransferService(API_BASE_URL));
+
 		app.run();
 	}
 
-	public App(ConsoleService console, AuthenticationService authenticationService) {
+	public App(ConsoleService console, AuthenticationService authenticationService, AccountService accountService,
+			UserService userService, TransferService transferService) {
 		this.console = console;
 		this.authenticationService = authenticationService;
+		this.accountService = accountService;
+		this.userService = userService;
+		this.transferService = transferService;
 	}
 
 	public void run() {
@@ -88,23 +97,14 @@ public class App {
 	}
 
 	private void viewCurrentBalance() {
+		BigDecimal balance = accountService.getBalance(currentUser.getToken());
+		System.out.println("Your current account balance is: " + balance);
 
-		AccountClient account = accountBalanceService.getBalance();
-		String message = String.format("Balance $%6.2f", account.getBalance());
-		console.displayMessage(message);
 	}
 
 	private void viewTransferHistory() {
+		// TODO Auto-generated method stub
 
-		Integer transferID = console.displayTransfers(transferService.getTransfers(accountBalanceService.getBalance().getAccountId()));
-		if (transferID == 0) {
-			mainMenu();
-		} else if (transferID == -1) {
-			viewTransferHistory();
-		} else {
-			List<TransferClient> transfer = transferService.getTransferDetails(transferID);
-			console.displayTransferDetails(transfer);
-		}
 	}
 
 	private void viewPendingRequests() {
@@ -113,30 +113,16 @@ public class App {
 	}
 
 	private void sendBucks() {
-		List<UserClient> users = transferService.getAllUsers();
-		Integer userId = console.displayAllUsers(users);
-
-		if (userId == 0) {
-			mainMenu();
-		} else if (userId == -1) {
-			sendBucks();
+		showUser();
+		Integer toUserId = console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)");
+		if (toUserId != 0) {
+			int amount = console.getUserInputInteger("Enter amount");
+			BigDecimal amountBD = new BigDecimal(amount);
+			Transfer transferProcess = new Transfer(amountBD, toUserId);
+			transferService.createTransfer(currentUser.getToken());
+			System.out.println(amount + " TE Bucks were sent to user " + toUserId);
 		} else {
-			TransferClient transfer = console.createTransfer(currentUser.getUser().getId(), userId);
-
-			AccountClient account = accountBalanceService.getBalance();
-			if (transfer.getAmount().doubleValue() <= 0) {
-				System.out.println("Enter number larger than 0");
-				sendBucks();
-			}
-
-			else if (account.getBalance().doubleValue() >= transfer.getAmount().doubleValue()) {
-				transferService.updateBalance(transfer);
-				transferService.createTransfer(transfer, transfer.getAmount(), transfer.getUserToId(),
-						transfer.getUserToId());
-			} else {
-				System.out.println("Please enter an amount less than $" + account.getBalance());
-				sendBucks();
-			}
+			System.out.println("Cancelling transfer...");
 		}
 
 	}
@@ -147,13 +133,12 @@ public class App {
 	}
 
 	private void exitProgram() {
-		System.out.println("Thanks for choosing TEnmo!");
 		System.exit(0);
 	}
 
 	private void registerAndLogin() {
-		while(!isAuthenticated()) {
-			String choice = (String)console.getChoiceFromOptions(LOGIN_MENU_OPTIONS);
+		while (!isAuthenticated()) {
+			String choice = (String) console.getChoiceFromOptions(LOGIN_MENU_OPTIONS);
 			if (LOGIN_MENU_OPTION_LOGIN.equals(choice)) {
 				login();
 			} else if (LOGIN_MENU_OPTION_REGISTER.equals(choice)) {
@@ -172,15 +157,15 @@ public class App {
 	private void register() {
 		System.out.println("Please register a new user account");
 		boolean isRegistered = false;
-		while (!isRegistered) //will keep looping until user is registered
+		while (!isRegistered) // will keep looping until user is registered
 		{
 			UserCredentials credentials = collectUserCredentials();
 			try {
 				authenticationService.register(credentials);
 				isRegistered = true;
 				System.out.println("Registration successful. You can now login.");
-			} catch(AuthenticationServiceException e) {
-				System.out.println("REGISTRATION ERROR: "+e.getMessage());
+			} catch (AuthenticationServiceException e) {
+				System.out.println("REGISTRATION ERROR: " + e.getMessage());
 				System.out.println("Please attempt to register again.");
 			}
 		}
@@ -189,13 +174,13 @@ public class App {
 	private void login() {
 		System.out.println("Please log in");
 		currentUser = null;
-		while (currentUser == null) //will keep looping until user is logged in
+		while (currentUser == null) // will keep looping until user is logged in
 		{
 			UserCredentials credentials = collectUserCredentials();
 			try {
 				currentUser = authenticationService.login(credentials);
 			} catch (AuthenticationServiceException e) {
-				System.out.println("LOGIN ERROR: "+e.getMessage());
+				System.out.println("LOGIN ERROR: " + e.getMessage());
 				System.out.println("Please attempt to login again.");
 			}
 		}
@@ -207,4 +192,20 @@ public class App {
 		return new UserCredentials(username, password);
 	}
 
+	public void showUser() {
+		System.out.println("-------------------------------------------");
+
+		System.out.println("Users");
+		System.out.println("ID          Name");
+		System.out.println("-------------------------------------------");
+		User[] getUsers = userService.getUsers(currentUser.getToken());
+		for (User items : getUsers) {
+
+			System.out.println(items.getId() + "           " + items.getUsername());
+
+		}
+
+		System.out.println("---------");
+		System.out.println("         ");
+	}
 }

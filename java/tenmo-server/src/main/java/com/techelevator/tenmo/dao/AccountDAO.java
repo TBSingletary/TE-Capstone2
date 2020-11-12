@@ -1,8 +1,12 @@
 package com.techelevator.tenmo.dao;
 
-import com.techelevator.tenmo.model.AccountBalance;
+import com.techelevator.tenmo.model.Account;
 
 public interface AccountDAO {
+	Account getAccountByUserId(Long userId);
+	
 
-	AccountBalance getBalance(String username);
+	void updateBalance(Account account);
+
+	
 }
