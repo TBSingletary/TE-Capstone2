@@ -1,20 +1,20 @@
 package com.techelevator.tenmo;
 
-import java.math.BigDecimal;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+
+import java.util.List;
+
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 import com.techelevator.tenmo.models.AccountClient;
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.TransferClient;
 import com.techelevator.tenmo.models.UserClient;
 import com.techelevator.tenmo.models.UserCredentials;
+import com.techelevator.tenmo.services.AccountBalanceService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
-import com.techelevator.tenmo.services.UserServices;
+import com.techelevator.tenmo.services.TransferService;
+import com.techelevator.tenmo.services.UserService;
 import com.techelevator.view.ConsoleService;
 
 @RestController
@@ -34,22 +34,21 @@ public class App {
 	private static final String MAIN_MENU_OPTION_LOGIN = "Login as different user";
 	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
 
-	public static String AUTH_TOKEN = "";
-	private RestTemplate restTemplate = new RestTemplate();
 	private AuthenticatedUser currentUser;
 	private ConsoleService console;
 	private AuthenticationService authenticationService;
-	private UserServices userServices;
+	private AccountBalanceService accountBalanceService;
+	private TransferService transferService;
+	private UserService userService;
 
 	public static void main(String[] args) {
-		App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL), new UserServices(API_BASE_URL));
+		App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL));
 		app.run();
 	}
 
-	public App(ConsoleService console, AuthenticationService authenticationService, UserServices userServices) {
+	public App(ConsoleService console, AuthenticationService authenticationService) {
 		this.console = console;
 		this.authenticationService = authenticationService;
-		this.userServices = userServices;
 	}
 
 	public void run() {
@@ -90,118 +89,55 @@ public class App {
 
 	private void viewCurrentBalance() {
 
-		System.out.print("Current Balance: $");
-		System.out.println(userServices.getCurrentBalance(currentUser));	
-
+		AccountClient account = accountBalanceService.getBalance();
+		String message = String.format("Balance $%6.2f", account.getBalance());
+		console.displayMessage(message);
 	}
 
 	private void viewTransferHistory() {
 
-		TransferClient[] transfer = null;
-		UserClient[] user = null;
-		AccountClient account = null;
-
-		try {
-			System.out.println("---------------------------------");
-			System.out.println("ID          From/To        Amount");
-			System.out.println("---------------------------------");
-			for(int i = 0; i < transfer.length; i++) {
-				if(account.getAccountId() == transfer[i].getAccountTo()) {
-					System.out.println(transfer[i].getTransferId() + "         From: " + transfer[i].getUsername() + "          $ " + transfer[i].getAmount());
-				}else
-					System.out.println(transfer[i].getTransferId() + "         To: " + transfer[i].getUsername() + "           $ " + transfer[i].getAmount());
-			}
-			System.out.println("---------------------------------");
-
-		}catch (Exception ex) {
-			System.out.println("No transfers found. Returning to main menu");
+		Integer transferID = console.displayTransfers(transferService.getTransfers(accountBalanceService.getBalance().getAccountId()));
+		if (transferID == 0) {
 			mainMenu();
+		} else if (transferID == -1) {
+			viewTransferHistory();
+		} else {
+			List<TransferClient> transfer = transferService.getTransferDetails(transferID);
+			console.displayTransferDetails(transfer);
 		}
+	}
 
-		Integer detailId = console.getUserInputInteger("Please enter Transfer ID to view details");
-		if(detailId == 0) {
-			mainMenu();
-		}
-
-		AccountClient accounts = null;
-		TransferClient transferDetail = null;
-		TransferClient toTransferDetail = null;
-
-		System.out.println("---------------------------------");
-		System.out.println("Transfer Details");
-		System.out.println("---------------------------------");
-		System.out.println("Id: " + transferDetail.getTransferId());
-
-		if(account.getAccountId() == transferDetail.getAccountFrom()) {
-			System.out.println("From: " + currentUser.getUser().getUsername());
-		}else
-			System.out.println("From: " + transferDetail.getUsername());
-		if(account.getAccountId() == transferDetail.getAccountTo()) {
-			System.out.println("To: " + currentUser.getUser().getUsername());
-		}else
-			System.out.println("To: " + toTransferDetail.getUsername());
-		if(transferDetail.getTransferTypeId() == 2) {
-			System.out.println("Type: " + "Send");
-		}else
-			System.out.println("Type: " + "Request");
-		if(transferDetail.getTransferStatusId() == 2) {
-			System.out.println("Status: " + "Approved");
-		}else
-			if(transferDetail.getTransferStatusId() == 1) {
-				System.out.println("Status: " + "Pending");
-			}else
-				System.out.println("Status: " + "Rejected");
-
-		System.out.println("Amount: $" + transferDetail.getAmount());
+	private void viewPendingRequests() {
+		// TODO Auto-generated method stub
 
 	}
 
-	private void viewPendingRequests() {		
-		//OPTIONAL	
-	}
+	private void sendBucks() {
+		List<UserClient> users = transferService.getAllUsers();
+		Integer userId = console.displayAllUsers(users);
 
-	private void sendBucks() {		
-
-		TransferClient transfer = new TransferClient();
-		UserServices account = null;
-		UserClient[] user = null;
-
-		System.out.println("---------------------------------");
-		System.out.println("ID     Name");
-		System.out.println("---------------------------------");
-
-		System.out.println(userServices.getUserList(currentUser));
-
-		System.out.println("---------------------------------");
-
-		transfer.setAccountFrom(currentUser.getUser().getId());
-		transfer.setTransferId(1);
-		transfer.setTransferStatusId(2);
-		transfer.setTransferTypeId(2);
-
-		Integer sendToId = console.getUserInputInteger("Please enter the ID of the user you are sending to");
-//		currentUser.getUser().getId();
-		if(sendToId == 0) {
+		if (userId == 0) {
 			mainMenu();
-		}
+		} else if (userId == -1) {
+			sendBucks();
+		} else {
+			TransferClient transfer = console.createTransfer(currentUser.getUser().getId(), userId);
 
-		boolean balanceCheck = false;
-
-		while(!balanceCheck) {
-			BigDecimal amountToSend = console.getUserInputBigDecimal("Please enter the amount to send");
-			if(amountToSend.compareTo(userServices.getCurrentBalance(currentUser)) == 1) {
-				System.out.println("Sorry, insufficient funds.");
+			AccountClient account = accountBalanceService.getBalance();
+			if (transfer.getAmount().doubleValue() <= 0) {
+				System.out.println("Enter number larger than 0");
+				sendBucks();
 			}
-			else {
-				balanceCheck = true;
+
+			else if (account.getBalance().doubleValue() >= transfer.getAmount().doubleValue()) {
+				transferService.updateBalance(transfer);
+				transferService.createTransfer(transfer, transfer.getAmount(), transfer.getUserToId(),
+						transfer.getUserToId());
+			} else {
+				System.out.println("Please enter an amount less than $" + account.getBalance());
+				sendBucks();
 			}
-			transfer.setAccountTo(sendToId);
-			transfer.setAmount(amountToSend);
-
-			transfer = restTemplate.postForObject(API_BASE_URL + "transfers/new/", makeTransferEntity(transfer), TransferClient.class);
-			System.out.println(transfer.toString());
 		}
-
 
 	}
 
@@ -271,19 +207,4 @@ public class App {
 		return new UserCredentials(username, password);
 	}
 
-	private HttpEntity makeAuthEntity() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.setBearerAuth(currentUser.getToken());
-		HttpEntity entity = new HttpEntity(headers);
-		return entity;
-	}
-
-	private HttpEntity makeTransferEntity(TransferClient transfer) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.setBearerAuth(currentUser.getToken());
-		HttpEntity<TransferClient> entity = new HttpEntity<TransferClient>(transfer, headers);
-		return entity;
-	}
 }

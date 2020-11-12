@@ -10,13 +10,12 @@ public interface UserDAO {
 
     List<User> findAll();
     
-    List<User> findOtherUsers(Principal principal);
-
     User findByUsername(String username);    
 
     int findIdByUsername(String username);
 
     boolean create(String username, String password);
     
-    public BigDecimal getUserBalance(String username);
+    User findUserByAccountId(int accountId);
+    
 }

@@ -1,7 +1,5 @@
 package com.techelevator.tenmo.dao;
 
-import java.math.BigDecimal;
-import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,20 +43,6 @@ public class UserSqlDAO implements UserDAO {
 	}
 
 	@Override
-	public List<User> findOtherUsers(Principal principal) {
-		List<User> users = new ArrayList<>();
-		String sql = "SELECT username FROM users WHERE username != ?";
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sql, principal.getName());
-		while(results.next()) {
-			User user = mapRowToUser(results);
-			users.add(user);
-		}
-
-		return users;
-	}
-
-
-	@Override
 	public User findByUsername(String username) throws UsernameNotFoundException {
 		for (User user : this.findAll()) {
 			if( user.getUsername().toLowerCase().equals(username.toLowerCase())) {
@@ -95,20 +79,6 @@ public class UserSqlDAO implements UserDAO {
 		return userCreated && accountCreated;
 	}    
 
-	@Override
-	public BigDecimal getUserBalance(String username)
-	{
-		BigDecimal balance = new BigDecimal(0.00);
-		String sql = "SELECT balance FROM accounts JOIN users on users.user_id = accounts.user_id WHERE users.username = ?";
-		SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username);
-		if(result.next())
-		{
-			balance = result.getBigDecimal("balance");
-		}
-		return balance;
-	}
-
-
 	private User mapRowToUser(SqlRowSet rs) {
 		User user = new User();
 		user.setId(rs.getLong("user_id"));
@@ -116,6 +86,20 @@ public class UserSqlDAO implements UserDAO {
 		user.setPassword(rs.getString("password_hash"));
 		user.setActivated(true);
 		user.setAuthorities("ROLE_USER");
+		return user;
+	}
+
+	@Override
+	public User findUserByAccountId(int accountId) {
+		User user = new User();
+		String selectSql = "SELECT users.user_id, username, password_hash FROM users\n" +
+				"JOIN accounts ON users.user_id = accounts.user_id\n" +
+				"WHERE account_id = ?";
+		SqlRowSet rowSet = jdbcTemplate.queryForRowSet(selectSql, accountId);
+
+		while (rowSet.next()) {
+			user = mapRowToUser(rowSet);    
+		}
 		return user;
 	}
 }

@@ -1,20 +1,23 @@
 package com.techelevator.tenmo.controller;
 
+import java.security.Principal;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.techelevator.tenmo.dao.TransferDAO;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 
 @PreAuthorize("isAuthenticated()")
 @RestController
-
 public class TransferController {
 	private TransferDAO transferDAO;
 
@@ -22,30 +25,32 @@ public class TransferController {
 		this.transferDAO = transfersDAO;
 	}	
 
-	@RequestMapping(path = "transfers/new", method = RequestMethod.POST)
-	public void createTransfer(@RequestBody Transfer transfer)
-	{
-		transferDAO.createTransfer(transfer);
+	@RequestMapping(path = "/users", method = RequestMethod.GET)
+	public List<User> getAllUsers() {
+		return transferDAO.getAllUsers();
 	}
 
-	@RequestMapping(path = "transfers/{id}/getDetails", method = RequestMethod.GET)
-	public Transfer getTransferDetails(@PathVariable int transferId) {
-		return transferDAO.getTransferDetails(transferId);
+	@RequestMapping(path = "/accounts", method = RequestMethod.PUT)
+	public void update(@RequestBody Transfer transfer) {
+		transferDAO.addFunds(transfer.getAmount(), transfer.getUserToId());
+		transferDAO.withdrawFunds(transfer.getAmount(), transfer.getUserToId());
+
 	}
 
-	@RequestMapping(path = "transfers/{id}", method = RequestMethod.PUT)
-	public void updateTransferRequest(@RequestBody Transfer transfer, @PathVariable int id) {
-		transferDAO.updateTransferRequest(transfer, id);
+	@ResponseStatus(HttpStatus.CREATED)
+	@RequestMapping(path="/transfers", method = RequestMethod.POST)
+	public Transfer createTransfer(@RequestBody Transfer transfer) {
+		return transferDAO.addTransfer(transfer, transfer.getAmount(), transfer.getUserToId(), transfer.getUserFromId());
 	}
 
-	@RequestMapping(path = "transfers/transfer_status_desc/{id}", method = RequestMethod.GET)
-	public String getTransferStatus(@RequestBody Transfer transfer, @PathVariable int id) {
-		return transferDAO.getTransferStatus(transfer, id);
+	@RequestMapping(path="/transfers/{id}", method=RequestMethod.GET)
+	public List<Transfer> showTransfers(Principal principal, @PathVariable(name="id") int accountId ) {
+		return transferDAO.getTransfers(accountId);
 	}
 
-	@RequestMapping(path = "transfers/{id}/getAll", method = RequestMethod.GET)
-	public List<Transfer> getAllTransfers(@PathVariable int id) {
-		return transferDAO.getAllTransfers(id);
+	@RequestMapping(path="/transfers/{id}/details", method=RequestMethod.GET)
+	public List<Transfer> showTransferDetailsByTransferId(Principal principal, @PathVariable(name="id") int transferId ) {
+		return transferDAO.getTransferDetailsByTransferId(transferId);
 	}
 
 

@@ -35,9 +35,9 @@ public class UserController {
 		return userDAO.findByUsername(username);
 	}
 
-	@RequestMapping(path = "accounts/balance", method = RequestMethod.GET)
-	public BigDecimal getUserBalance(Principal principal) {
-		return userDAO.getUserBalance(principal.getName());
+	@RequestMapping(path = "/accounts/{id}/users", method = RequestMethod.GET)
+	public User findUserByAccountId(@PathVariable("id") int accountId) {
+		return userDAO.findUserByAccountId(accountId);
 	}
 
 }
