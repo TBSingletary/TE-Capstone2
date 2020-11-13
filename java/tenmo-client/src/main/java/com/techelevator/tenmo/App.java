@@ -1,10 +1,10 @@
 package com.techelevator.tenmo;
 
 import java.math.BigDecimal;
+import java.util.Scanner;
 
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.Transfer;
-import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
@@ -32,31 +32,25 @@ public class App {
 			MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS,
 			MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
 
-
-	public static String AUTH_TOKEN = "";
-
 	private AuthenticatedUser currentUser;
 	private ConsoleService console;
-	private User user;
-	private Transfer transfer;
 	private AuthenticationService authenticationService;
-	private AccountService accountService;
 	private UserService userService;
+	private AccountService accountService;
 	private TransferService transferService;
 
 	public static void main(String[] args) {
 		App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL),
-				new AccountService(API_BASE_URL), new UserService(API_BASE_URL), new TransferService(API_BASE_URL));
-
+				new UserService(API_BASE_URL), new AccountService(API_BASE_URL), new TransferService(API_BASE_URL));
 		app.run();
 	}
 
-	public App(ConsoleService console, AuthenticationService authenticationService, AccountService accountService,
-			UserService userService, TransferService transferService) {
+	public App(ConsoleService console, AuthenticationService authenticationService, UserService userService,
+			AccountService accountService, TransferService transferService) {
 		this.console = console;
 		this.authenticationService = authenticationService;
-		this.accountService = accountService;
 		this.userService = userService;
+		this.accountService = accountService;
 		this.transferService = transferService;
 	}
 
@@ -75,19 +69,19 @@ public class App {
 	}
 
 	private void mainMenu() {
-		while(true) {
-			String choice = (String)console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
-			if(MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
+		while (true) {
+			String choice = (String) console.getChoiceFromOptions(MAIN_MENU_OPTIONS);
+			if (MAIN_MENU_OPTION_VIEW_BALANCE.equals(choice)) {
 				viewCurrentBalance();
-			} else if(MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
+			} else if (MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
 				viewTransferHistory();
-			} else if(MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
+			} else if (MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
 				viewPendingRequests();
-			} else if(MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
+			} else if (MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
 				sendBucks();
-			} else if(MAIN_MENU_OPTION_REQUEST_BUCKS.equals(choice)) {
+			} else if (MAIN_MENU_OPTION_REQUEST_BUCKS.equals(choice)) {
 				requestBucks();
-			} else if(MAIN_MENU_OPTION_LOGIN.equals(choice)) {
+			} else if (MAIN_MENU_OPTION_LOGIN.equals(choice)) {
 				login();
 			} else {
 				// the only other option on the main menu is to exit
@@ -97,32 +91,121 @@ public class App {
 	}
 
 	private void viewCurrentBalance() {
-		BigDecimal balance = accountService.getBalance(currentUser.getToken());
-		System.out.println("Your current account balance is: " + balance);
-
+		BigDecimal accountBalance;
+		accountBalance = accountService.getAccountBalance(currentUser.getToken());
+		System.out.println(accountBalance);
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
+		//CALL TRANSFER SERVICE TO GET TRANSFER HISTORY
+		Transfer[] allTransfers = transferService.getTransferHistory(currentUser.getToken(),
+				currentUser.getUser().getId());
 
+		System.out.println("----------------------------------------------");
+		System.out.println("Transfers");
+		System.out.println("ID           From/To           Amount");
+		System.out.println("----------------------------------------------");
+
+		//LOOP THROUGH EACH TRANSFER AND PRINT THEM OUT IF THEY ARE ASSOCIATED WITH THE CURRENT USER
+		for (int i = 0; i < allTransfers.length; i++) {
+			if (allTransfers[i].getToUserId() == currentUser.getUser().getId()) {
+				System.out.println(allTransfers[i].getTransferId() + "          From: "
+						+ allTransfers[i].getFromUsername() + "          $ " + allTransfers[i].getTransferAmount());
+			} else if (allTransfers[i].getFromUserId() == currentUser.getUser().getId()) {
+				System.out.println(allTransfers[i].getTransferId() + "          To: " + allTransfers[i].getToUserName()
+						+ "          $ " + allTransfers[i].getTransferAmount());
+			}
+		}
+
+		Scanner input = new Scanner(System.in);
+		System.out.println("Please enter the 'Transfer ID' to retreive details of the transfer or (0) to exit>>>>");
+		String stringTransferId = input.nextLine();
+		boolean flagFoundId = false;
+		long transfersId = 0;
+		BigDecimal transferAmount = new BigDecimal(0);
+		String fromUserName = "";
+		String toUserName = "";
+		String typeOfTransfer = "";
+		String statusOfTransfer = "";
+
+
+		//DISPLAY TRANSFER DETAILS FOR SELECTED TRANSFER, IF VALID
+		while (true && !String.valueOf(stringTransferId).equals(String.valueOf(0))) {
+
+			for (int i = 0; i < allTransfers.length; i++) {
+				if (String.valueOf(stringTransferId).equals(String.valueOf(allTransfers[i].getTransferId()))) {
+					transfersId = allTransfers[i].getTransferId();
+					fromUserName = allTransfers[i].getFromUsername();
+					toUserName = allTransfers[i].getToUserName();
+					typeOfTransfer = allTransfers[i].getTypeOfTransfer();
+					statusOfTransfer = allTransfers[i].getStatusOfTransfer();
+					transferAmount = allTransfers[i].getTransferAmount();
+					flagFoundId = true;
+					stringTransferId = "0";
+					break;
+				}
+			}
+
+			if (flagFoundId == false) {
+				System.out.println(
+						"Please enter the valid 'Transfer ID' to retreive details of the transfer or (0) to exit>>>>");
+				stringTransferId = input.nextLine();
+			}
+		}
+
+		if (flagFoundId == true) {
+			System.out.println("----------------------------------------------");
+			System.out.println("Transfer Details");
+			System.out.println("----------------------------------------------");
+			System.out.println("Id: " + transfersId);
+			System.out.println("From: " + fromUserName);
+			System.out.println("To: " + toUserName);
+			System.out.println("Type: " + typeOfTransfer);
+			System.out.println("Status: " + statusOfTransfer);
+			System.out.println("Amount: " + transferAmount);
+		}
 	}
 
 	private void viewPendingRequests() {
 		// TODO Auto-generated method stub
-
 	}
 
 	private void sendBucks() {
-		showUser();
-		Integer toUserId = console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)");
-		if (toUserId != 0) {
-			int amount = console.getUserInputInteger("Enter amount to send");
-			BigDecimal amountBD = new BigDecimal(amount);
-			Transfer transferProcess = new Transfer(amountBD, toUserId);
-			transferService.createTransfer(currentUser.getToken());
-			System.out.println(amount + " TE Bucks were sent to user " + toUserId);
-		} else {
-			System.out.println("Cancelling transfer...");
+		// LISTING ALL USERS AND IDS
+		console.printUsers(userService.getAll(currentUser.getToken()));
+		System.out.println("");
+
+		Boolean validResponse = false;
+		int selectedUserId = -1;
+		BigDecimal transferAmount = new BigDecimal(0);
+		BigDecimal zero = new BigDecimal(0);
+		BigDecimal currentBalance = (accountService.getAccountBalance(currentUser.getToken()));
+		Transfer transfer = new Transfer();
+
+		while (true) {
+			//ASK WHICH USER TO SEND MONEY TO OR EXIT
+			selectedUserId = console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)");
+			if (selectedUserId == 0) {
+				break;
+			}
+			if (selectedUserId > 0 && selectedUserId <= userService.getAll(currentUser.getToken()).length) {
+				//PROMPT FOR AMOUND TO SEND
+				transferAmount = console.getUserInputBigDecimal("Enter amount");
+				
+				//TRANSFER MONEY
+				if (transferAmount.compareTo(zero) == 1 && transferAmount.compareTo(currentBalance) <= 0) {
+					transfer.setFromUserId(currentUser.getUser().getId());
+					transfer.setToUserId(selectedUserId);
+					transfer.setTransferAmount(transferAmount);
+					transfer.setStatusOfTransferId(2);
+					transfer.setTypeOfTransferId(2);
+
+					transferService.createTransfer(currentUser.getToken(), transfer);
+					System.out.println("\nTransfer Complete!");
+					break;
+				}
+				System.out.println("\nInsufficient Funds! Please try again.\n");
+			}
 		}
 
 	}
@@ -158,7 +241,7 @@ public class App {
 	private void register() {
 		System.out.println("Please register a new user account");
 		boolean isRegistered = false;
-		while (!isRegistered) // will keep looping until user is registered
+		while (!isRegistered) //LOOPS UNTIL USER IS REGISTERED
 		{
 			UserCredentials credentials = collectUserCredentials();
 			try {
@@ -175,7 +258,7 @@ public class App {
 	private void login() {
 		System.out.println("Please log in");
 		currentUser = null;
-		while (currentUser == null) // will keep looping until user is logged in
+		while (currentUser == null) //LOOPS UNTIL USER IS LOGGED IN
 		{
 			UserCredentials credentials = collectUserCredentials();
 			try {
@@ -191,22 +274,5 @@ public class App {
 		String username = console.getUserInput("Username");
 		String password = console.getUserInput("Password");
 		return new UserCredentials(username, password);
-	}
-
-	public void showUser() {
-		System.out.println("-------------------------------------------");
-
-		System.out.println("Users");
-		System.out.println("ID          Name");
-		System.out.println("-------------------------------------------");
-		User[] getUsers = userService.getUsers(currentUser.getToken());
-		for (User items : getUsers) {
-
-			System.out.println(items.getId() + "           " + items.getUsername());
-
-		}
-
-		System.out.println("---------");
-		System.out.println("         ");
 	}
 }

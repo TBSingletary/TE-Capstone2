@@ -1,52 +1,51 @@
 package com.techelevator.tenmo.controller;
 
 import java.security.Principal;
+import java.util.List;
 
+import javax.validation.Valid;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.techelevator.tenmo.dao.TransferDAO;
-import com.techelevator.tenmo.dao.UserDAO;
 import com.techelevator.tenmo.model.Transfer;
 
-@RequestMapping("/account")
 @PreAuthorize("isAuthenticated()")
 @RestController
+@RequestMapping("transfer")
 public class TransferController {
 
+	//CREATES DAO FOR TRANSFER
 	private TransferDAO transferDAO;
-	private UserDAO userDAO;
-	private AccountController accountController;
-	private Transfer transfer;
 
 	public TransferController(TransferDAO transferDAO) {
+
 		this.transferDAO = transferDAO;
 	}
 
-	@RequestMapping(path = "/transfer", method = RequestMethod.GET)
-	public void getTransfers(Principal principal) {
-
-		long userId = accountController.getCurrentUserId(principal);
-		int userIdInt = (int) userId;
-		transfer.setAccount_from(userIdInt);
+	@RequestMapping(method = RequestMethod.POST)
+	@ResponseStatus(HttpStatus.CREATED)
+	public Transfer createTransfer(@Valid @RequestBody Transfer transfer, Principal principal) {
+		Transfer newTransfer = null;
+		newTransfer = transferDAO.createTransfer(transfer);
+		if (newTransfer != null) {
+			transferDAO.addToBalance(transfer.getTransferAmount(), transfer.getToUserId());
+			transferDAO.subtractFromBalance(transfer.getTransferAmount(), transfer.getFromUserId());
+			return newTransfer;
+		}
+		return null;
 	}
 
-	@RequestMapping(value = "/transfer", method = RequestMethod.POST)
-	public Transfer initiateNewTransfer(@RequestBody Transfer transfer) {
-		Transfer pendingTransfer = null;
-		pendingTransfer = transferDAO.initiateTransfer(transfer);
-		transferDAO.updateBalances(pendingTransfer);
-		return pendingTransfer;
+	@RequestMapping(path = "/history/{userId}", method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.FOUND)
+	public List<Transfer> getTransferHistory(@PathVariable int userId) {
+		return transferDAO.getTransferHistory(userId);
 	}
-
-	// updates both accounts from the transfer
-	@RequestMapping(value = "/transfer", method = RequestMethod.PUT)
-	public void makeTransfer(@RequestBody Transfer transfer) {
-		transferDAO.updateBalances(transfer);
-	}
-
-
 }

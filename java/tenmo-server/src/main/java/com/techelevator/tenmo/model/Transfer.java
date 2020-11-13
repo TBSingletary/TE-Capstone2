@@ -4,73 +4,93 @@ import java.math.BigDecimal;
 
 public class Transfer {
 
-	private int transfer_id;
-	private int transfer_type_id;
-	private int transfer_status_id;
-	private int account_from;
-	private int account_to;
-	private BigDecimal amount;
+	private long transferId;
+	private long fromUserId;
+	private long toUserId;
+	private long typeOfTransferId;
+	private long statusOfTransferId;
+	private String statusOfTransfer;
+	private String fromUsername;
+	private String toUserName;
+	private String typeOfTransfer;
+	private BigDecimal transferAmount;	
 
-	public Transfer(int transfer_id, int transfer_type_id, int transfer_status_id, int account_from, int account_to,
-			BigDecimal amount) {
-		this.transfer_id = transfer_id;
-		this.transfer_type_id = transfer_type_id;
-		this.transfer_status_id = transfer_status_id;
-		this.account_from = account_from;
-		this.account_to = account_to;
-		this.amount = amount;
+	public BigDecimal getTransferAmount() {
+		return transferAmount;
+	}
+	public void setTransferAmount(BigDecimal transferAmount) {
+		this.transferAmount = transferAmount;
 	}
 
-	public Transfer() {
-	}
-
-	public int getTransfer_id() {
-		return transfer_id;
-	}
-
-	public int getTransfer_type_id() {
-		return transfer_type_id;
-	}
-
-	public int getTransfer_status_id() {
-		return transfer_status_id;
-	}
-
-	public int getAccount_from() {
-		return account_from;
-	}
-
-	public int getAccount_to() {
-		return account_to;
-	}
-
-	public BigDecimal getAmount() {
-		return amount;
-	}
-
-	public void setTransfer_id(int transfer_id) {
-		this.transfer_id = transfer_id;
-	}
-
-	public void setTransfer_type_id(int transfer_type_id) {
-		this.transfer_type_id = transfer_type_id;
-	}
-
-	public void setTransfer_status_id(int transfer_status_id) {
-		this.transfer_status_id = transfer_status_id;
-	}
-
-	public void setAccount_from(int account_from) {
-		this.account_from = account_from;
-	}
-
-	public void setAccount_to(int account_to) {
-		this.account_to = account_to;
-	}
-
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
+	public long getToUserId() {
+		return toUserId;
 	}
 	
-		
+	public void setToUserId(long toUserId) {
+		this.toUserId = toUserId;
+	}
+	
+	public long getStatusOfTransferId() {
+		return statusOfTransferId;
+	}
+	
+	public void setStatusOfTransferId(long statusOfTransferId) {
+		this.statusOfTransferId = statusOfTransferId;
+	}
+	
+	public long getTypeOfTransferId() {
+		return typeOfTransferId;
+	}
+	
+	public void setTypeOfTransferId(long typeOfTransferId) {
+		this.typeOfTransferId = typeOfTransferId;
+	}
+	
+	public long getTransferId() {
+		return transferId;
+	}
+	
+	public void setTransferId(long transferId) {
+		this.transferId = transferId;
+	}
+	
+	public long getFromUserId() {
+		return fromUserId;
+	}
+	
+	public void setFromUserId(long fromUserId) {
+		this.fromUserId = fromUserId;
+	}
+	
+	public String getTypeOfTransfer() {
+		return typeOfTransfer;
+	}
+	
+	public void setTypeOfTransfer(String typeOfTransfer) {
+		this.typeOfTransfer = typeOfTransfer;
+	}
+	
+	public String getToUserName() {
+		return toUserName;
+	}
+	
+	public void setToUserName(String toUserName) {
+		this.toUserName = toUserName;
+	}
+	
+	public String getFromUsername() {
+		return fromUsername;
+	}
+	
+	public void setFromUsername(String fromUsername) {
+		this.fromUsername = fromUsername;
+	}
+	
+	public String getStatusOfTransfer() {
+		return statusOfTransfer;
+	}
+	
+	public void setStatusOfTransfer(String statusOfTransfer) {
+		this.statusOfTransfer = statusOfTransfer;
+	}
 }

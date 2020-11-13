@@ -1,10 +1,12 @@
 package com.techelevator.view;
 
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.util.Scanner;
+
+import com.techelevator.tenmo.models.User;
 
 public class ConsoleService {
 
@@ -35,7 +37,7 @@ public class ConsoleService {
 				choice = options[selectedOption - 1];
 			}
 		} catch (NumberFormatException e) {
-			// eat the exception, an error message will be displayed below since choice will be null
+			//THROW EXCEPT, CHOICE IS NULL PRINT ERROR MESSAGE
 		}
 		if (choice == null) {
 			out.println("\n*** " + userInput + " is not a valid option ***\n");
@@ -72,5 +74,32 @@ public class ConsoleService {
 			}
 		} while(result == null);
 		return result;
+	}
+	
+	public BigDecimal getUserInputBigDecimal(String prompt) {
+		BigDecimal bigDecimal = null;
+		do {
+			out.print(prompt+": ");
+			out.flush();
+			String userInput = in.nextLine();
+			try {
+				bigDecimal = new BigDecimal(userInput);
+			} catch(NumberFormatException e) {
+				out.println("\n*** " + userInput + " is not valid ***\n");
+			}
+		} while(bigDecimal == null);
+		return bigDecimal;
+	}
+
+	public void printUsers(User[] users) {
+		if (users != null) {
+			System.out.println("--------------------------------------------");
+			System.out.println("Users ID		Name");
+			System.out.println("--------------------------------------------");
+			for (User user : users) {
+				System.out.println(user.getId() + "			" + user.getUsername());
+
+			}
+		}
 	}
 }
