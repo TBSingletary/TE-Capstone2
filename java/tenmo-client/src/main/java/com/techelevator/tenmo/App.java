@@ -84,7 +84,7 @@ public class App {
 			} else if (MAIN_MENU_OPTION_LOGIN.equals(choice)) {
 				login();
 			} else {
-				// the only other option on the main menu is to exit
+				//ONLY OTHER OPTION IS TO EXIT
 				exitProgram();
 			}
 		}
@@ -93,7 +93,7 @@ public class App {
 	private void viewCurrentBalance() {
 		BigDecimal accountBalance;
 		accountBalance = accountService.getAccountBalance(currentUser.getToken());
-		System.out.println(accountBalance);
+		System.out.println("Current balance: " + accountBalance);
 	}
 
 	private void viewTransferHistory() {
@@ -228,7 +228,7 @@ public class App {
 			} else if (LOGIN_MENU_OPTION_REGISTER.equals(choice)) {
 				register();
 			} else {
-				// the only other option on the login menu is to exit
+				//ONLY OTHER OPTION IS TO EXIT
 				exitProgram();
 			}
 		}
